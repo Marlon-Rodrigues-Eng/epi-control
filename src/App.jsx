@@ -4,8 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import {
   getFuncionarios, upsertFuncionario, deleteFuncionario,
   getEpis, upsertEpi, updateQuantidadeEpi, deleteEpi,
-  getEntregas, insertEntrega,
-  getDevolucoes, insertDevolucao
+  getEntregas, insertEntrega, deleteEntrega,
+  getDevolucoes, insertDevolucao, deleteDevolucao
 } from './supabase'
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
@@ -670,6 +670,17 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
     finally { setLoading(false) }
   }
 
+  const cancelarEntrega = async (e) => {
+    if(!confirm(`Cancelar entrega de ${e.quantidade} un. de "${e.epiDesc}" para ${e.funcNome}?\nO estoque será restaurado.`)) return
+    try {
+      await deleteEntrega(e.id)
+      await updateQuantidadeEpi(e.epiId, epis.find(ep=>ep.id===e.epiId)?.quantidade + e.quantidade)
+      setEntregas(p=>p.filter(en=>en.id!==e.id))
+      setEpis(p=>p.map(ep=>ep.id===e.epiId?{...ep,quantidade:ep.quantidade+e.quantidade}:ep))
+      toast('Entrega cancelada e estoque restaurado!','info')
+    } catch(err) { toast('Erro: '+err.message,'error') }
+  }
+
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
@@ -680,7 +691,7 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
         <>
           <div style={{color:'#64748b',fontSize:12,marginBottom:8}}>{entregas.length} registro(s)</div>
           <div style={{display:'grid',gap:10}}>
-            {paged.map(e=>(<div key={e.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${e.funcNome} (${e.funcId})`}/><Kv k="Data" v={fmtDate(e.data)}/><Kv k="EPI" v={e.epiDesc}/><Kv k="Qtd" v={`${e.quantidade} un.`}/><Kv k="Motivo" v={e.motivo}/></div></div><Bdg color="blue">Entrega</Bdg></div>))}
+            {paged.map(e=>(<div key={e.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${e.funcNome} (${e.funcId})`}/><Kv k="Data" v={fmtDate(e.data)}/><Kv k="EPI" v={e.epiDesc}/><Kv k="Qtd" v={`${e.quantidade} un.`}/><Kv k="Motivo" v={e.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="blue">Entrega</Bdg><button onClick={()=>cancelarEntrega(e)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button></div></div>))}
           </div>
           <Pager pg={pg} total={total} setPg={setPg}/>
         </>
@@ -729,6 +740,18 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
     finally { setLoading(false) }
   }
 
+  const cancelarDevolucao = async (d) => {
+    if(!confirm(`Cancelar devolução de ${d.quantidade} un. de "${d.epiDesc}" de ${d.funcNome}?\nO estoque será ajustado.`)) return
+    try {
+      await deleteDevolucao(d.id)
+      const epiAtual = epis.find(ep=>ep.id===d.epiId)
+      await updateQuantidadeEpi(d.epiId, Math.max(0, (epiAtual?.quantidade||0) - d.quantidade))
+      setDevolucoes(p=>p.filter(dv=>dv.id!==d.id))
+      setEpis(p=>p.map(ep=>ep.id===d.epiId?{...ep,quantidade:Math.max(0,ep.quantidade-d.quantidade)}:ep))
+      toast('Devolução cancelada!','info')
+    } catch(err) { toast('Erro: '+err.message,'error') }
+  }
+
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
@@ -739,7 +762,7 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
         <>
           <div style={{color:'#64748b',fontSize:12,marginBottom:8}}>{devolucoes.length} registro(s)</div>
           <div style={{display:'grid',gap:10}}>
-            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/></div></div><Bdg color="green">Devolução</Bdg></div>))}
+            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="green">Devolução</Bdg><button onClick={()=>cancelarDevolucao(d)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button></div></div>))}
           </div>
           <Pager pg={pg} total={total} setPg={setPg}/>
         </>
@@ -924,6 +947,7 @@ export default function App() {
   return (
     <>
       <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+      <style>{`@media print{body *{visibility:hidden;}#print-zone,#print-zone *{visibility:visible;}#print-zone{position:absolute;left:0;top:0;width:100%;background:#fff;}}`}</style>
       <Toasts ts={ts}/>
       {alertasPopup&&alertas.length>0&&<AlertasPopup alertas={alertas} onClose={()=>setAlertasPopup(false)}/>}
       {showPDF&&<PDFModal funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes} onClose={()=>setShowPDF(false)}/>}

@@ -91,3 +91,14 @@ export async function insertDevolucao(d) {
   if (error) throw error
   return { ...d, id: data.id }
 }
+
+// ─── DELETE ENTREGA / DEVOLUÇÃO ──────────────────────────────────────────────
+export async function deleteEntrega(id) {
+  const { error } = await supabase.from('entregas').delete().eq('id', id)
+  if (error) throw error
+}
+
+export async function deleteDevolucao(id) {
+  const { error } = await supabase.from('devolucoes').delete().eq('id', id)
+  if (error) throw error
+}
