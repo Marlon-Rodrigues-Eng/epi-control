@@ -242,7 +242,14 @@ function PDFModal({ funcionarios, epis, entregas, devolucoes, onClose }) {
   return (
     <Modal title="🖨️ Relatório para Impressão" onClose={onClose} wide>
       <div style={{marginBottom:12,display:'flex',gap:8,justifyContent:'flex-end'}}>
-        <Btn onClick={()=>window.print()}>🖨️ Imprimir / Salvar PDF</Btn>
+        <Btn onClick={()=>{
+          const el=document.getElementById('print-zone');
+          const w=window.open('','_blank','width=900,height=700');
+          w.document.write('<html><head><title>EPI Control - Relatorio</title><style>*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif;}body{padding:20px;color:#1e293b;background:#fff;}</style></head><body>'+el.innerHTML+'</body></html>');
+          w.document.close();
+          w.focus();
+          setTimeout(()=>{w.print();},500);
+        }}>🖨️ Imprimir / Salvar PDF</Btn>
       </div>
       <div id="print-zone" style={{background:'#fff',color:'#1e293b',padding:32,borderRadius:8}}>
         <div style={{borderBottom:'3px solid #1e40af',paddingBottom:12,marginBottom:20}}>
