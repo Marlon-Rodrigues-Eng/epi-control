@@ -1013,9 +1013,10 @@ export default function App() {
       <div style={{minHeight:'100vh',background:'#0f172a',fontFamily:"'DM Sans',sans-serif",color:'#f1f5f9',display:'flex',flexDirection:'column'}}>
         <div style={{background:'#1e293b',borderBottom:'1px solid #334155',padding:'0 24px',position:'sticky',top:0,zIndex:100}}>
           <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:16}}>
-            <div style={{padding:'14px 0',marginRight:8,flexShrink:0}}>
-              <div style={{fontSize:17,fontWeight:800,fontFamily:"'Sora',sans-serif",background:'linear-gradient(135deg,#3b82f6,#6366f1)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>EPI Control</div>
-              <div style={{color:'#475569',fontSize:10}}>Gestão de Equipamentos</div>
+            <div style={{padding:'14px 0',marginRight:12,flexShrink:0,borderRight:'1px solid #334155',paddingRight:16}}>
+              <div style={{fontSize:10,fontWeight:600,color:'#64748b',textTransform:'uppercase',letterSpacing:1.5,marginBottom:2}}>Guindastes Ribas</div>
+              <div style={{fontSize:17,fontWeight:800,fontFamily:"'Sora',sans-serif",background:'linear-gradient(135deg,#3b82f6,#60a5fa)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',lineHeight:1.1}}>EPI Control</div>
+              <div style={{color:'#475569',fontSize:9,marginTop:1,letterSpacing:.5}}>Gestão de Equipamentos</div>
             </div>
             <nav style={{display:'flex',gap:2,flex:1,overflowX:'auto'}}>
               {TABS.map(t=>(
