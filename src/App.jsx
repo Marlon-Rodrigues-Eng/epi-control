@@ -1126,6 +1126,55 @@ function GestaoUsuarios({ toast }) {
   )
 }
 
+
+// ─── TROCAR SENHA ─────────────────────────────────────────────────────────────
+function TrocarSenhaModal({ onClose, toast }) {
+  const [novaSenha, setNovaSenha] = useState('')
+  const [confirmar, setConfirmar] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  const salvar = async () => {
+    if(!novaSenha) return alert('Digite a nova senha.')
+    if(novaSenha.length < 6) return alert('A senha deve ter no mínimo 6 caracteres.')
+    if(novaSenha !== confirmar) return alert('As senhas não coincidem.')
+    setLoading(true)
+    try {
+      const { error } = await supabase.auth.updateUser({ password: novaSenha })
+      if(error) throw error
+      toast('Senha alterada com sucesso!')
+      onClose()
+    } catch(e) {
+      toast('Erro: ' + e.message, 'error')
+    }
+    setLoading(false)
+  }
+
+  return (
+    <Modal title="🔑 Trocar Senha" onClose={onClose}>
+      <Inp
+        label="Nova senha"
+        type="password"
+        value={novaSenha}
+        onChange={e=>setNovaSenha(e.target.value)}
+        placeholder="mínimo 6 caracteres"
+      />
+      <Inp
+        label="Confirmar nova senha"
+        type="password"
+        value={confirmar}
+        onChange={e=>setConfirmar(e.target.value)}
+        placeholder="repita a nova senha"
+      />
+      <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8}}>
+        <Btn variant="ghost" onClick={onClose}>Cancelar</Btn>
+        <Btn onClick={salvar} disabled={loading}>
+          {loading ? 'Salvando...' : 'Salvar nova senha'}
+        </Btn>
+      </div>
+    </Modal>
+  )
+}
+
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 const TABS = [
   {id:'dashboard',   label:'Dashboard',    icon:'📊'},
@@ -1149,6 +1198,7 @@ export default function App() {
   const [erro,setErro]             = useState(null)
   const [alertasPopup,setAlertasPopup] = useState(false)
   const [showPDF,setShowPDF]       = useState(false)
+  const [showTrocarSenha,setShowTrocarSenha] = useState(false)
   const [sessao,setSessao]         = useState(null)
   const [perfil,setPerfil]         = useState(null)
   const [authLoading,setAuthLoading] = useState(true)
@@ -1245,6 +1295,7 @@ export default function App() {
       <style>{`@media print{body *{visibility:hidden;}#print-zone,#print-zone *{visibility:visible;}#print-zone{position:absolute;left:0;top:0;width:100%;background:#fff;}}`}</style>
       <Toasts ts={ts}/>
       {alertasPopup&&alertas.length>0&&<AlertasPopup alertas={alertas} onClose={()=>setAlertasPopup(false)}/>}
+      {showTrocarSenha&&<TrocarSenhaModal onClose={()=>setShowTrocarSenha(false)} toast={toast}/>}
       {showPDF&&<PDFModal funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes} onClose={()=>setShowPDF(false)}/>}
 
       <div style={{minHeight:'100vh',background:'#f0f4f8',fontFamily:"'DM Sans',sans-serif",color:'#1e293b',display:'flex',flexDirection:'column'}} id="app-root">
@@ -1271,6 +1322,10 @@ export default function App() {
                 <div style={{color:'#fff',fontSize:12,fontWeight:600}}>{perfil?.nome||'Usuário'}</div>
                 <div style={{color:'rgba(255,255,255,.5)',fontSize:10,textTransform:'uppercase',letterSpacing:.5}}>{perfil?.perfil||''}</div>
               </div>
+              <button onClick={()=>setShowTrocarSenha(true)} title="Trocar senha"
+                style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:8,padding:'6px 10px',color:'rgba(255,255,255,.8)',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}>
+                🔑
+              </button>
               <button onClick={handleLogout} title="Sair"
                 style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:8,padding:'6px 10px',color:'rgba(255,255,255,.8)',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}>
                 Sair
