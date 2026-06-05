@@ -68,7 +68,7 @@ function Toasts({ ts }) {
   return (
     <div style={{position:'fixed',bottom:80,right:24,zIndex:9999,display:'flex',flexDirection:'column',gap:8,pointerEvents:'none'}}>
       {ts.map(t=>(
-        <div key={t.id} style={{background:'#1e293b',border:`1px solid ${c[t.type]||c.success}`,
+        <div key={t.id} style={{background:'#1e3a5f',border:`1px solid ${c[t.type]||c.success}`,
           borderLeft:`4px solid ${c[t.type]||c.success}`,borderRadius:10,padding:'12px 18px',
           color:'#f1f5f9',fontSize:13,fontWeight:600,boxShadow:'0 8px 24px rgba(0,0,0,.6)',
           minWidth:240,animation:'fadeSlide .25s ease'}}>
@@ -81,16 +81,16 @@ function Toasts({ ts }) {
 
 // ─── UI ATOMS ─────────────────────────────────────────────────────────────────
 const S = {
-  card:  {background:'#1e293b',border:'1px solid #334155',borderRadius:12,padding:'14px 18px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap'},
-  title: {color:'#f1f5f9',fontSize:20,fontWeight:700,margin:'0 0 4px 0',fontFamily:"'Sora',sans-serif"},
+  card:  {background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:12,padding:'14px 18px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',boxShadow:'0 1px 3px rgba(0,0,0,.06)'},
+  title: {color:'#1e3a5f',fontSize:20,fontWeight:700,margin:'0 0 4px 0',fontFamily:"'Sora',sans-serif"},
   ax:    {fill:'#64748b',fontSize:11},
-  tt:    {background:'#1e293b',border:'1px solid #334155',borderRadius:8,color:'#f1f5f9',fontSize:13},
+  tt:    {background:'#1e3a5f',border:'1px solid #334155',borderRadius:8,color:'#f1f5f9',fontSize:13},
   clr:   ['#3b82f6','#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'],
   grn:   ['#10b981','#34d399','#6ee7b7','#059669','#047857','#065f46'],
 }
 
 function Bdg({ children, color='gray' }) {
-  const m = { green:'#d1fae5|#065f46',red:'#fee2e2|#991b1b',yellow:'#fef3c7|#92400e',gray:'#f3f4f6|#4b5563',blue:'#dbeafe|#1e40af' }
+  const m = { green:'#d1fae5|#065f46',red:'#fee2e2|#991b1b',yellow:'#fef3c7|#92400e',gray:'#e2e8f0|#475569',blue:'#dbeafe|#1e40af' }
   const [bg,fg] = (m[color]||m.gray).split('|')
   return <span style={{background:bg,color:fg,padding:'2px 10px',borderRadius:999,fontSize:12,fontWeight:700}}>{children}</span>
 }
@@ -99,8 +99,8 @@ function Inp({ label, ...p }) {
   return (
     <div style={{marginBottom:16}}>
       {label && <label style={{display:'block',color:'#94a3b8',fontSize:12,fontWeight:600,marginBottom:6,textTransform:'uppercase',letterSpacing:.8}}>{label}</label>}
-      <input {...p} style={{width:'100%',background:'#0f172a',border:'1px solid #334155',borderRadius:8,
-        padding:'10px 14px',color:'#f1f5f9',fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit',...(p.style||{})}}/>
+      <input {...p} style={{width:'100%',background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,
+        padding:'10px 14px',color:'#1e293b',fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit',...(p.style||{})}}/>
     </div>
   )
 }
@@ -140,22 +140,22 @@ function Btn({ children, onClick, variant='primary', small, disabled }) {
 function Kv({ k, v, hi }) {
   return (
     <div>
-      <div style={{color:'#64748b',fontSize:11,textTransform:'uppercase',letterSpacing:.6}}>{k}</div>
-      <div style={{color:hi?'#60a5fa':'#cbd5e1',fontWeight:hi?700:400,fontSize:13}}>{v||'—'}</div>
+      <div style={{color:'#94a3b8',fontSize:11,textTransform:'uppercase',letterSpacing:.6}}>{k}</div>
+      <div style={{color:hi?'#1d4ed8':'#334155',fontWeight:hi?700:400,fontSize:13}}>{v||'—'}</div>
     </div>
   )
 }
 
-function Empty({ msg }) { return <div style={{textAlign:'center',color:'#475569',padding:'40px 0',fontSize:14}}>{msg}</div> }
+function Empty({ msg }) { return <div style={{textAlign:'center',color:'#94a3b8',padding:'40px 0',fontSize:14}}>{msg}</div> }
 
 function Modal({ title, onClose, children, wide }) {
   return (
     <div style={{position:'fixed',inset:0,background:'rgba(15,23,42,.8)',zIndex:1000,
       display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}}>
-      <div style={{background:'#1e293b',border:'1px solid #334155',borderRadius:16,padding:32,
-        width:'90%',maxWidth:wide?900:560,maxHeight:'92vh',overflowY:'auto',boxShadow:'0 25px 60px rgba(0,0,0,.6)'}}>
+      <div style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:16,padding:32,
+        width:'90%',maxWidth:wide?900:560,maxHeight:'92vh',overflowY:'auto',boxShadow:'0 25px 60px rgba(0,0,0,.15)'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:24}}>
-          <h2 style={{margin:0,color:'#f1f5f9',fontSize:18,fontFamily:"'Sora',sans-serif"}}>{title}</h2>
+          <h2 style={{margin:0,color:'#1e3a5f',fontSize:18,fontFamily:"'Sora',sans-serif"}}>{title}</h2>
           <button onClick={onClose} style={{background:'none',border:'none',color:'#94a3b8',fontSize:24,cursor:'pointer'}}>×</button>
         </div>
         {children}
@@ -181,15 +181,15 @@ function Pager({ pg, total, setPg }) {
   return (
     <div style={{display:'flex',justifyContent:'center',alignItems:'center',gap:6,marginTop:16}}>
       <button onClick={()=>setPg(p=>Math.max(1,p-1))} disabled={pg===1}
-        style={{background:'#1e293b',border:'1px solid #334155',borderRadius:6,padding:'5px 12px',color:pg===1?'#475569':'#94a3b8',cursor:pg===1?'not-allowed':'pointer',fontSize:13}}>‹</button>
+        style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:6,padding:'5px 12px',color:pg===1?'#cbd5e1':'#64748b',cursor:pg===1?'not-allowed':'pointer',fontSize:13}}>‹</button>
       {vis.map((p,i)=>(
         <span key={p} style={{display:'contents'}}>
           {i>0&&vis[i-1]!==p-1&&<span style={{color:'#475569'}}>…</span>}
-          <button onClick={()=>setPg(p)} style={{background:p===pg?'#3b82f6':'#1e293b',border:`1px solid ${p===pg?'#3b82f6':'#334155'}`,borderRadius:6,padding:'5px 10px',color:p===pg?'#fff':'#94a3b8',cursor:'pointer',fontSize:13,fontWeight:p===pg?700:400,minWidth:32}}>{p}</button>
+          <button onClick={()=>setPg(p)} style={{background:p===pg?'#1e3a5f':'#ffffff',border:`1px solid ${p===pg?'#1e3a5f':'#cbd5e1'}`,borderRadius:6,padding:'5px 10px',color:p===pg?'#fff':'#64748b',cursor:'pointer',fontSize:13,fontWeight:p===pg?700:400,minWidth:32}}>{p}</button>
         </span>
       ))}
       <button onClick={()=>setPg(p=>Math.min(total,p+1))} disabled={pg===total}
-        style={{background:'#1e293b',border:'1px solid #334155',borderRadius:6,padding:'5px 12px',color:pg===total?'#475569':'#94a3b8',cursor:pg===total?'not-allowed':'pointer',fontSize:13}}>›</button>
+        style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:6,padding:'5px 12px',color:pg===total?'#cbd5e1':'#64748b',cursor:pg===total?'not-allowed':'pointer',fontSize:13}}>›</button>
       <span style={{color:'#64748b',fontSize:12,marginLeft:4}}>{pg}/{total}</span>
     </div>
   )
@@ -325,7 +325,7 @@ function PDFModal({ funcionarios, epis, entregas, devolucoes, onClose }) {
 function ChartCard({ title, children, span2 }) {
   return (
     <div style={{background:'#1e293b',border:'1px solid #334155',borderRadius:16,padding:'20px 20px 14px',gridColumn:span2?'span 2':undefined}}>
-      <div style={{color:'#94a3b8',fontSize:12,fontWeight:700,textTransform:'uppercase',letterSpacing:.8,marginBottom:16}}>{title}</div>
+      <div style={{color:'#64748b',fontSize:12,fontWeight:700,textTransform:'uppercase',letterSpacing:.8,marginBottom:16}}>{title}</div>
       {children}
     </div>
   )
@@ -374,7 +374,7 @@ function Dashboard({ funcionarios, epis, entregas, devolucoes }) {
         <button onClick={()=>{setDIni(`${ano}-01-01`);setDFim(hoje());setFF('todos');setFE('todos');setFM('todos')}}
           style={{background:'transparent',border:'1px solid #334155',borderRadius:8,color:'#94a3b8',fontSize:12,padding:'6px 14px',cursor:'pointer',fontFamily:'inherit'}}>↺ Limpar filtros</button>
       </div>
-      <div style={{background:'#1e293b',border:'1px solid #334155',borderRadius:14,padding:'16px 20px',marginBottom:24,display:'flex',flexWrap:'wrap',gap:16,alignItems:'flex-end'}}>
+      <div style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:14,padding:'16px 20px',marginBottom:24,display:'flex',flexWrap:'wrap',gap:16,alignItems:'flex-end',boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
         <FDate label="De"  value={dIni} onChange={setDIni}/>
         <FDate label="Até" value={dFim} onChange={setDFim}/>
         <FSel label="Funcionário" value={fF} onChange={setFF} options={[{value:'todos',label:'Todos'},...funcionarios.map(f=>({value:f.id,label:f.nome}))]}/>
@@ -390,7 +390,7 @@ function Dashboard({ funcionarios, epis, entregas, devolucoes }) {
           {l:'Alertas',         v:alertas.length,                          i:'⚠️',c:alertas.length?'#ef4444':'#10b981'},
           {l:'Resíduos',        v:resKg+' kg',                             i:'🌱',c:'#10b981'},
         ].map(k=>(
-          <div key={k.l} style={{background:'#1e293b',borderRadius:12,padding:'16px 18px',border:'1px solid #334155',borderTop:`3px solid ${k.c}`}}>
+          <div key={k.l} style={{background:'#ffffff',borderRadius:12,padding:'16px 18px',border:'1px solid #cbd5e1',borderTop:`3px solid ${k.c}`,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:20,marginBottom:6}}>{k.i}</div>
             <div style={{color:k.c,fontSize:22,fontWeight:800}}>{k.v}</div>
             <div style={{color:'#64748b',fontSize:11,marginTop:2}}>{k.l}</div>
@@ -469,7 +469,7 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
         <h2 style={S.title}>👷 Funcionários</h2>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <select value={ordem} onChange={e=>setOrdem(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+          <select value={ordem} onChange={e=>setOrdem(e.target.value)} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'7px 12px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
             <option value="cadastro">Ordem de cadastro</option>
             <option value="alfa">Ordem alfabética</option>
           </select>
@@ -518,17 +518,17 @@ function HistoricoModal({ func, entregas, devolucoes, onClose }) {
     <Modal title={`👷 ${func.nome}`} onClose={onClose}>
       <div style={{display:'flex',gap:8,marginBottom:20}}>
         {[{id:'posse',l:`Em posse (${posse.length})`},{id:'hist',l:`Histórico (${hist.length})`}].map(a=>(
-          <button key={a.id} onClick={()=>setAba(a.id)} style={{flex:1,padding:'8px 0',borderRadius:8,border:'none',background:aba===a.id?'#3b82f6':'#0f172a',color:aba===a.id?'#fff':'#64748b',fontWeight:600,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>{a.l}</button>
+          <button key={a.id} onClick={()=>setAba(a.id)} style={{flex:1,padding:'8px 0',borderRadius:8,border:'none',background:aba===a.id?'#1e3a5f':'#f1f5f9',color:aba===a.id?'#fff':'#64748b',fontWeight:600,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>{a.l}</button>
         ))}
       </div>
       {aba==='posse'&&(posse.length===0?<Empty msg="Nenhum EPI em posse."/>:
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
-          {posse.map(p=>(<div key={p.epiId} style={{background:'#0f172a',borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{color:'#f1f5f9',fontSize:13,fontWeight:600}}>{p.epiDesc}</span><span style={{background:'#1d4ed8',color:'#bfdbfe',borderRadius:999,padding:'2px 10px',fontSize:12,fontWeight:700}}>{p.qtd} un.</span></div>))}
+          {posse.map(p=>(<div key={p.epiId} style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',display:'flex',justifyContent:'space-between',alignItems:'center'}}><span style={{color:'#f1f5f9',fontSize:13,fontWeight:600}}>{p.epiDesc}</span><span style={{background:'#dbeafe',color:'#1e40af',borderRadius:999,padding:'2px 10px',fontSize:12,fontWeight:700}}>{p.qtd} un.</span></div>))}
         </div>
       )}
       {aba==='hist'&&(hist.length===0?<Empty msg="Nenhuma movimentação."/>:
         <div style={{display:'flex',flexDirection:'column',gap:8,maxHeight:340,overflowY:'auto'}}>
-          {hist.map(h=>(<div key={h.id+h.tipo} style={{background:'#0f172a',borderRadius:8,padding:'10px 14px',display:'flex',gap:12,alignItems:'flex-start'}}><span style={{fontSize:16}}>{h.tipo==='ent'?'📤':'📥'}</span><div style={{flex:1}}><div style={{color:'#f1f5f9',fontSize:13,fontWeight:600}}>{h.epiDesc} — {h.quantidade} un.</div><div style={{color:'#64748b',fontSize:11,marginTop:2}}>{fmtDate(h.data)} · {h.motivo}</div></div><span style={{background:h.tipo==='ent'?'#172554':'#064e3b',color:h.tipo==='ent'?'#93c5fd':'#6ee7b7',borderRadius:999,padding:'2px 8px',fontSize:11,fontWeight:700,whiteSpace:'nowrap'}}>{h.tipo==='ent'?'Entrega':'Devolução'}</span></div>))}
+          {hist.map(h=>(<div key={h.id+h.tipo} style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',display:'flex',gap:12,alignItems:'flex-start'}}><span style={{fontSize:16}}>{h.tipo==='ent'?'📤':'📥'}</span><div style={{flex:1}}><div style={{color:'#f1f5f9',fontSize:13,fontWeight:600}}>{h.epiDesc} — {h.quantidade} un.</div><div style={{color:'#64748b',fontSize:11,marginTop:2}}>{fmtDate(h.data)} · {h.motivo}</div></div><span style={{background:h.tipo==='ent'?'#172554':'#064e3b',color:h.tipo==='ent'?'#93c5fd':'#6ee7b7',borderRadius:999,padding:'2px 8px',fontSize:11,fontWeight:700,whiteSpace:'nowrap'}}>{h.tipo==='ent'?'Entrega':'Devolução'}</span></div>))}
         </div>
       )}
     </Modal>
@@ -577,7 +577,7 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
         <h2 style={S.title}>🦺 Estoque de EPIs</h2>
         <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
-          <select value={ordemEpi} onChange={e=>setOrdemEpi(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+          <select value={ordemEpi} onChange={e=>setOrdemEpi(e.target.value)} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'7px 12px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
             <option value="cadastro">Ordem de cadastro</option>
             <option value="alfa">Ordem alfabética</option>
             <option value="qtd">Por quantidade</option>
@@ -591,10 +591,10 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
           {episOrdenados.map(e=>{
             const baixo=e.quantidade<=e.minimo,d=diasVenc(e.validade),venc=d<0,em30=d<=30
             return (
-              <div key={e.id} style={{...S.card,borderColor:venc?'#991b1b':baixo?'#1d4ed8':'#334155'}}>
+              <div key={e.id} style={{...S.card,borderColor:venc?'#991b1b':baixo?'#1d4ed8':'#cbd5e1'}}>
                 <div style={{flex:1}}>
                   <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6,flexWrap:'wrap'}}>
-                    <span style={{color:'#f1f5f9',fontWeight:700,fontSize:15}}>{e.descricao}</span>
+                    <span style={{color:'#1e3a5f',fontWeight:700,fontSize:15}}>{e.descricao}</span>
                     {baixo&&<Bdg color="blue">Estoque baixo</Bdg>}
                     {venc&&<Bdg color="red">Vencido</Bdg>}
                     {!venc&&em30&&<Bdg color="yellow">Vence em breve</Bdg>}
@@ -659,7 +659,7 @@ function ReposicaoModal({ epis, setEpis, onClose, toast }) {
   return (
     <Modal title="📦 Repor Estoque" onClose={onClose}>
       <Sel label="EPI" value={epiId} onChange={setEpiId} options={epis.map(e=>({value:e.id,label:`${e.descricao} — ${e.quantidade} em estoque`}))}/>
-      {epiSel && <div style={{background:'#0f172a',borderRadius:8,padding:'10px 14px',marginBottom:16,display:'flex',gap:16,flexWrap:'wrap'}}><Kv k="Atual" v={`${epiSel.quantidade} un.`} hi={epiSel.quantidade<=epiSel.minimo}/><Kv k="Mínimo" v={`${epiSel.minimo} un.`}/><Kv k="Validade" v={fmtDate(epiSel.validade)}/></div>}
+      {epiSel && <div style={{background:'#f8fafc',borderRadius:8,padding:'10px 14px',marginBottom:16,display:'flex',gap:16,flexWrap:'wrap'}}><Kv k="Atual" v={`${epiSel.quantidade} un.`} hi={epiSel.quantidade<=epiSel.minimo}/><Kv k="Mínimo" v={`${epiSel.minimo} un.`}/><Kv k="Validade" v={fmtDate(epiSel.validade)}/></div>}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
         <Inp label="Qtd a repor" type="number" min="1" value={qtd} onChange={e=>setQtd(e.target.value)}/>
         <Inp label="Validade do lote (opcional)" type="date" value={val} onChange={e=>setVal(e.target.value)}/>
@@ -719,7 +719,7 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <h2 style={S.title}>📤 Entregas</h2>
         <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
-          <select value={filtFuncEnt} onChange={e=>setFiltFuncEnt(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+          <select value={filtFuncEnt} onChange={e=>setFiltFuncEnt(e.target.value)} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'7px 12px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
             <option value="todos">Todos funcionários</option>
             {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
           </select>
@@ -798,7 +798,7 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <h2 style={S.title}>📥 Devoluções</h2>
         <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
-          <select value={filtFuncDev} onChange={e=>setFiltFuncDev(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+          <select value={filtFuncDev} onChange={e=>setFiltFuncDev(e.target.value)} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'7px 12px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
             <option value="todos">Todos funcionários</option>
             {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
           </select>
@@ -841,7 +841,7 @@ function PainelAlertas({ epis }) {
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
         <h2 style={S.title}>🚨 Painel de Alertas</h2>
         <div style={{display:'flex',gap:8,alignItems:'center'}}>
-          <select value={filtroAlerta} onChange={e=>setFiltroAlerta(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+          <select value={filtroAlerta} onChange={e=>setFiltroAlerta(e.target.value)} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'7px 12px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
             <option value="todos">Todos ({todosAlertas.length})</option>
             <option value="estoque">Estoque ({todosAlertas.filter(a=>a.tipo==='estoque').length})</option>
             <option value="validade">Validade ({todosAlertas.filter(a=>a.tipo==='validade').length})</option>
@@ -858,7 +858,7 @@ function PainelAlertas({ epis }) {
           {alertas.map(a=>(
             <div key={a.id} style={{background:a.vencido?'#450a0a':a.tipo==='estoque'?'#172554':'#422006',border:`1px solid ${a.vencido?'#b91c1c':a.tipo==='estoque'?'#2563eb':'#b45309'}`,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
               <span style={{fontSize:26}}>{a.tipo==='estoque'?'📦':'📅'}</span>
-              <div style={{flex:1}}><div style={{color:'#f1f5f9',fontWeight:700,fontSize:15}}>{a.epi}</div><div style={{color:'#cbd5e1',fontSize:13,marginTop:2}}>{a.msg}</div></div>
+              <div style={{flex:1}}><div style={{color:'#1e3a5f',fontWeight:700,fontSize:15}}>{a.epi}</div><div style={{color:'#cbd5e1',fontSize:13,marginTop:2}}>{a.msg}</div></div>
               <Bdg color={a.vencido?'red':a.tipo==='estoque'?'blue':'yellow'}>{a.tipo==='estoque'?'Estoque':'Validade'}</Bdg>
             </div>
           ))}
@@ -883,7 +883,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
   return (
     <div>
       <div style={{marginBottom:8}}><h2 style={S.title}>🌱 Painel Ambiental</h2><p style={{color:'#64748b',fontSize:13,marginTop:4}}>Rastreamento de resíduos gerados por descarte de EPIs</p></div>
-      <div style={{background:'#1e293b',border:'1px solid #334155',borderRadius:14,padding:'14px 20px',marginBottom:24,display:'flex',flexWrap:'wrap',gap:16,alignItems:'flex-end'}}>
+      <div style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:14,padding:'14px 20px',marginBottom:24,display:'flex',flexWrap:'wrap',gap:16,alignItems:'flex-end',boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
         <FDate label="De" value={dIni} onChange={setDIni}/><FDate label="Até" value={dFim} onChange={setDFim}/>
         <button onClick={()=>{setDIni(`${ano}-01-01`);setDFim(hoje())}} style={{background:'transparent',border:'1px solid #334155',borderRadius:8,color:'#94a3b8',fontSize:12,padding:'7px 14px',cursor:'pointer',fontFamily:'inherit',alignSelf:'flex-end'}}>↺ Limpar</button>
       </div>
@@ -915,8 +915,8 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
           <ChartCard title="📋 Detalhamento">
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
               <thead><tr>{['EPI','Un.','Peso un.','Total'].map(h=><th key={h} style={{color:'#64748b',fontWeight:600,textAlign:'left',padding:'6px 10px',borderBottom:'1px solid #334155',fontSize:11,textTransform:'uppercase'}}>{h}</th>)}</tr></thead>
-              <tbody>{porEpi.map((r,i)=>(<tr key={r.epi} style={{borderBottom:'1px solid #0f172a'}}><td style={{color:'#f1f5f9',padding:'8px 10px',fontWeight:500}}>{r.epi}</td><td style={{color:'#cbd5e1',padding:'8px 10px'}}>{r.un} un.</td><td style={{color:'#94a3b8',padding:'8px 10px'}}>{epis.find(e=>e.descricao===r.epi)?.pesoG??0}g</td><td style={{padding:'8px 10px'}}><span style={{color:G[i%G.length],fontWeight:700}}>{r.kg} kg</span></td></tr>))}</tbody>
-              <tfoot><tr style={{borderTop:'1px solid #334155'}}><td style={{color:'#94a3b8',padding:'8px 10px',fontWeight:700}} colSpan={2}>Total — {totalUn} un.</td><td/><td style={{color:'#10b981',padding:'8px 10px',fontWeight:800}}>{totalKg} kg</td></tr></tfoot>
+              <tbody>{porEpi.map((r,i)=>(<tr key={r.epi} style={{borderBottom:'1px solid #0f172a'}}><td style={{color:'#1e293b',padding:'8px 10px',fontWeight:500}}>{r.epi}</td><td style={{color:'#475569',padding:'8px 10px'}}>{r.un} un.</td><td style={{color:'#64748b',padding:'8px 10px'}}>{epis.find(e=>e.descricao===r.epi)?.pesoG??0}g</td><td style={{padding:'8px 10px'}}><span style={{color:G[i%G.length],fontWeight:700}}>{r.kg} kg</span></td></tr>))}</tbody>
+              <tfoot><tr style={{borderTop:'1px solid #334155'}}><td style={{color:'#64748b',padding:'8px 10px',fontWeight:700}} colSpan={2}>Total — {totalUn} un.</td><td/><td style={{color:'#10b981',padding:'8px 10px',fontWeight:800}}>{totalKg} kg</td></tr></tfoot>
             </table>
           </ChartCard>
         </div>
@@ -934,11 +934,11 @@ function Rodape({ dados, onPDF }) {
     document.body.appendChild(a); a.click(); document.body.removeChild(a)
   }
   return (
-    <div style={{background:'#0f172a',borderTop:'1px solid #1e293b',padding:'8px 24px',flexShrink:0}}>
+    <div style={{background:'#1e3a5f',borderTop:'1px solid #1a3352',padding:'8px 24px',flexShrink:0}}>
       <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:8}}>
         <div style={{display:'flex',alignItems:'center',gap:6}}>
           <span style={{width:8,height:8,borderRadius:'50%',background:'#10b981',display:'inline-block'}}/>
-          <span style={{color:'#475569',fontSize:12}}>Conectado ao Supabase · dados salvos em tempo real</span>
+          <span style={{color:'rgba(255,255,255,.6)',fontSize:12}}>Conectado ao Supabase · dados salvos em tempo real</span>
         </div>
         <div style={{display:'flex',gap:8}}>
           <Btn small variant="ghost" onClick={exportJSON}>⬇️ Exportar JSON</Btn>
@@ -986,9 +986,9 @@ export default function App() {
   const alertas = useMemo(()=>gerarAlertas(epis),[epis])
 
   if(loading) return (
-    <div style={{minHeight:'100vh',background:'#0f172a',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
+    <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
       <div style={{fontSize:40}}>🦺</div>
-      <div style={{color:'#60a5fa',fontSize:18,fontWeight:700,fontFamily:"'Sora',sans-serif"}}>EPI Control</div>
+      <div style={{color:'#1e3a5f',fontSize:18,fontWeight:700,fontFamily:"'Sora',sans-serif"}}>EPI Control</div>
       <div style={{color:'#64748b',fontSize:14}}>Conectando ao banco de dados...</div>
     </div>
   )
@@ -1010,18 +1010,20 @@ export default function App() {
       {alertasPopup&&alertas.length>0&&<AlertasPopup alertas={alertas} onClose={()=>setAlertasPopup(false)}/>}
       {showPDF&&<PDFModal funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes} onClose={()=>setShowPDF(false)}/>}
 
-      <div style={{minHeight:'100vh',background:'#0f172a',fontFamily:"'DM Sans',sans-serif",color:'#f1f5f9',display:'flex',flexDirection:'column'}}>
-        <div style={{background:'#1e293b',borderBottom:'1px solid #334155',padding:'0 24px',position:'sticky',top:0,zIndex:100}}>
+      <div style={{minHeight:'100vh',background:'#f0f4f8',fontFamily:"'DM Sans',sans-serif",color:'#1e293b',display:'flex',flexDirection:'column'}}>
+        <div style={{background:'#1e3a5f',borderBottom:'1px solid #1a3352',padding:'0 24px',position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 8px rgba(0,0,0,.15)'}}>
           <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:16}}>
-            <div style={{padding:'14px 0',marginRight:12,flexShrink:0,borderRight:'1px solid #334155',paddingRight:16}}>
-              <div style={{fontSize:10,fontWeight:600,color:'#64748b',textTransform:'uppercase',letterSpacing:1.5,marginBottom:2}}>Guindastes Ribas</div>
-              <div style={{fontSize:17,fontWeight:800,fontFamily:"'Sora',sans-serif",background:'linear-gradient(135deg,#3b82f6,#60a5fa)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',lineHeight:1.1}}>EPI Control</div>
-              <div style={{color:'#475569',fontSize:9,marginTop:1,letterSpacing:.5}}>Gestão de Equipamentos</div>
+            <div style={{padding:'10px 0',marginRight:12,flexShrink:0,borderRight:'1px solid rgba(255,255,255,.15)',paddingRight:16,display:'flex',alignItems:'center',gap:10}}>
+              <img src="https://static.wixstatic.com/media/7ee4fb_ea01331caac7470bb01de1c91f704451~mv2.png/v1/crop/x_37,y_184,w_934,h_511/fill/w_511,h_278,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Logo%20GR%20-%20Fundo%20tranparente.png" alt="Guindastes Ribas" style={{height:38,width:'auto',objectFit:'contain',filter:'brightness(0) invert(1)'}}/>
+              <div>
+                <div style={{fontSize:15,fontWeight:800,fontFamily:"'Sora',sans-serif",color:'#ffffff',lineHeight:1.1}}>EPI Control</div>
+                <div style={{color:'rgba(255,255,255,.55)',fontSize:9,marginTop:1,letterSpacing:.5}}>Gestão de Equipamentos</div>
+              </div>
             </div>
             <nav style={{display:'flex',gap:2,flex:1,overflowX:'auto'}}>
               {TABS.map(t=>(
                 <button key={t.id} onClick={()=>setTab(t.id)}
-                  style={{background:tab===t.id?'#0f172a':'transparent',border:'none',color:tab===t.id?'#60a5fa':'#64748b',padding:'16px 12px',fontSize:12,fontWeight:600,cursor:'pointer',borderBottom:tab===t.id?'2px solid #3b82f6':'2px solid transparent',whiteSpace:'nowrap',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}>
+                  style={{background:tab===t.id?'rgba(255,255,255,.12)':'transparent',border:'none',color:tab===t.id?'#ffffff':'rgba(255,255,255,.6)',padding:'16px 12px',fontSize:12,fontWeight:600,cursor:'pointer',borderBottom:tab===t.id?'2px solid #60a5fa':'2px solid transparent',whiteSpace:'nowrap',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}>
                   {t.icon} {t.label}
                   {t.id==='alertas'&&alertas.length>0&&<span style={{background:'#ef4444',color:'#fff',borderRadius:999,fontSize:10,fontWeight:800,padding:'1px 5px'}}>{alertas.length}</span>}
                 </button>
@@ -1030,7 +1032,7 @@ export default function App() {
           </div>
         </div>
 
-        <div style={{flex:1,maxWidth:1100,margin:'0 auto',padding:'28px 24px',width:'100%'}}>
+        <div style={{flex:1,maxWidth:1100,margin:'0 auto',padding:'28px 24px',width:'100%',color:'#1e293b'}}>
           {tab==='dashboard'    && <Dashboard    funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes}/>}
           {tab==='funcionarios' && <Funcionarios funcionarios={funcionarios} setFuncionarios={setFunc} entregas={entregas} devolucoes={devolucoes} toast={toast}/>}
           {tab==='epis'         && <EstoqueEPIs  epis={epis} setEpis={setEpis} toast={toast}/>}
