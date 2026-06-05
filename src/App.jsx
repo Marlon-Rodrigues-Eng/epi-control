@@ -482,7 +482,7 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
             <div key={f.id} style={S.card}>
               <div style={{display:'flex',alignItems:'center',gap:14,flex:1}}>
                 <div style={{width:40,height:40,borderRadius:'50%',background:'linear-gradient(135deg,#3b82f6,#6366f1)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:16,flexShrink:0}}>{f.nome[0]}</div>
-                <div><div style={{color:'#f1f5f9',fontWeight:700}}>{f.nome}</div><div style={{color:'#64748b',fontSize:12}}>ID: {f.id}</div></div>
+                <div><div style={{color:'#1e293b',fontWeight:700}}>{f.nome}</div><div style={{color:'#64748b',fontSize:12}}>ID: {f.id}</div></div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                 <Bdg color={f.ativo?'green':'gray'}>{f.ativo?'Ativo':'Inativo'}</Bdg>
@@ -856,7 +856,7 @@ function PainelAlertas({ epis }) {
       ) : (
         <div style={{display:'grid',gap:12}}>
           {alertas.map(a=>(
-            <div key={a.id} style={{background:a.vencido?'#fee2e2':a.tipo==='estoque'?'#dbeafe':'#fef3c7',border:`1px solid ${a.vencido?'#fca5a5':a.tipo==='estoque'?'#93c5fd':'#fcd34d'}`,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
+            <div key={a.id} style={{background:a.vencido?'#450a0a':a.tipo==='estoque'?'#172554':'#422006',border:`1px solid ${a.vencido?'#b91c1c':a.tipo==='estoque'?'#2563eb':'#b45309'}`,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
               <span style={{fontSize:26}}>{a.tipo==='estoque'?'📦':'📅'}</span>
               <div style={{flex:1}}><div style={{color:'#1e293b',fontWeight:700,fontSize:15}}>{a.epi}</div><div style={{color:'#cbd5e1',fontSize:13,marginTop:2}}>{a.msg}</div></div>
               <Bdg color={a.vencido?'red':a.tipo==='estoque'?'blue':'yellow'}>{a.tipo==='estoque'?'Estoque':'Validade'}</Bdg>
