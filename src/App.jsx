@@ -858,7 +858,7 @@ function PainelAlertas({ epis }) {
           {alertas.map(a=>(
             <div key={a.id} style={{background:a.vencido?'#450a0a':a.tipo==='estoque'?'#172554':'#422006',border:`1px solid ${a.vencido?'#b91c1c':a.tipo==='estoque'?'#2563eb':'#b45309'}`,borderRadius:12,padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
               <span style={{fontSize:26}}>{a.tipo==='estoque'?'📦':'📅'}</span>
-              <div style={{flex:1}}><div style={{color:'#1e293b',fontWeight:700,fontSize:15}}>{a.epi}</div><div style={{color:'#cbd5e1',fontSize:13,marginTop:2}}>{a.msg}</div></div>
+              <div style={{flex:1}}><div style={{color:'#f1f5f9',fontWeight:700,fontSize:15}}>{a.epi}</div><div style={{color:'#cbd5e1',fontSize:13,marginTop:2}}>{a.msg}</div></div>
               <Bdg color={a.vencido?'red':a.tipo==='estoque'?'blue':'yellow'}>{a.tipo==='estoque'?'Estoque':'Validade'}</Bdg>
             </div>
           ))}
