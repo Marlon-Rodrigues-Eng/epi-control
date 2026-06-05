@@ -431,7 +431,7 @@ function Dashboard({ funcionarios, epis, entregas, devolucoes }) {
 }
 
 // ─── FUNCIONÁRIOS ─────────────────────────────────────────────────────────────
-function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toast }) {
+function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toast, podeEditar=true }) {
   const [modal,setModal] = useState(false)
   const [form,setForm] = useState({id:'',nome:'',ativo:true})
   const [editId,setEditId] = useState(null)
@@ -539,7 +539,7 @@ function HistoricoModal({ func, entregas, devolucoes, onClose }) {
 }
 
 // ─── ESTOQUE ──────────────────────────────────────────────────────────────────
-function EstoqueEPIs({ epis, setEpis, toast }) {
+function EstoqueEPIs({ epis, setEpis, toast, podeEditar=true }) {
   const [modal,setModal] = useState(false)
   const [repModal,setRepModal] = useState(false)
   const [form,setForm] = useState({id:'',descricao:'',fabricante:'',ca:'',validade:'',quantidade:0,minimo:1,pesoG:0})
@@ -676,7 +676,7 @@ function ReposicaoModal({ epis, setEpis, onClose, toast }) {
 }
 
 // ─── ENTREGAS ─────────────────────────────────────────────────────────────────
-function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast }) {
+function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast, podeEditar=true }) {
   const [modal,setModal] = useState(false)
   const [form,setForm] = useState({funcId:'',data:hoje(),epiId:'',quantidade:1,motivo:''})
   const [loading,setLoading] = useState(false)
@@ -756,7 +756,7 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
 }
 
 // ─── DEVOLUÇÕES ───────────────────────────────────────────────────────────────
-function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, toast }) {
+function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, toast, podeEditar=true }) {
   const [modal,setModal] = useState(false)
   const [form,setForm] = useState({funcId:'',data:hoje(),epiId:'',quantidade:1,motivo:''})
   const [loading,setLoading] = useState(false)
