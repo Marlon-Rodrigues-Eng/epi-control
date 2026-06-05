@@ -433,6 +433,12 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
   const [form,setForm] = useState({id:'',nome:'',ativo:true})
   const [editId,setEditId] = useState(null)
   const [histF,setHistF] = useState(null)
+  const [ordem,setOrdem] = useState('cadastro')
+  const funcOrdenados = useMemo(()=>{
+    const l=[...funcionarios]
+    if(ordem==='alfa') l.sort((a,b)=>a.nome.localeCompare(b.nome))
+    return l
+  },[funcionarios,ordem])
   const [loading,setLoading] = useState(false)
 
   const abrir = (f=null) => { setForm(f?{...f}:{id:'',nome:'',ativo:true}); setEditId(f?f.id:null); setModal(true) }
@@ -460,13 +466,19 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
 
   return (
     <div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
         <h2 style={S.title}>👷 Funcionários</h2>
-        <Btn onClick={()=>abrir()}>+ Novo Funcionário</Btn>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <select value={ordem} onChange={e=>setOrdem(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+            <option value="cadastro">Ordem de cadastro</option>
+            <option value="alfa">Ordem alfabética</option>
+          </select>
+          <Btn onClick={()=>abrir()}>+ Novo Funcionário</Btn>
+        </div>
       </div>
       {!funcionarios.length?<Empty msg="Nenhum funcionário cadastrado."/>:(
         <div style={{display:'grid',gap:10}}>
-          {funcionarios.map(f=>(
+          {funcOrdenados.map(f=>(
             <div key={f.id} style={S.card}>
               <div style={{display:'flex',alignItems:'center',gap:14,flex:1}}>
                 <div style={{width:40,height:40,borderRadius:'50%',background:'linear-gradient(135deg,#3b82f6,#6366f1)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:16,flexShrink:0}}>{f.nome[0]}</div>
@@ -485,7 +497,7 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
       {histF && <HistoricoModal func={histF} entregas={entregas} devolucoes={devolucoes} onClose={()=>setHistF(null)}/>}
       {modal && (
         <Modal title={editId?'Editar Funcionário':'Novo Funcionário'} onClose={()=>setModal(false)}>
-          <Inp label="ID"   value={form.id}   onChange={e=>setForm({...form,id:e.target.value})}   disabled={!!editId}/>
+          <Inp label="ID Funcionário"   value={form.id}   onChange={e=>setForm({...form,id:e.target.value})}   disabled={!!editId}/>
           <Inp label="Nome" value={form.nome} onChange={e=>setForm({...form,nome:e.target.value})}/>
           <Sel label="Status" value={form.ativo?'true':'false'} onChange={v=>setForm({...form,ativo:v==='true'})} options={[{value:'true',label:'Ativo'},{value:'false',label:'Inativo'}]}/>
           <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8}}>
@@ -529,6 +541,13 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
   const [repModal,setRepModal] = useState(false)
   const [form,setForm] = useState({id:'',descricao:'',fabricante:'',ca:'',validade:'',quantidade:0,minimo:1,pesoG:0})
   const [editId,setEditId] = useState(null)
+  const [ordemEpi,setOrdemEpi] = useState('cadastro')
+  const episOrdenados = useMemo(()=>{
+    const l=[...epis]
+    if(ordemEpi==='alfa') l.sort((a,b)=>a.descricao.localeCompare(b.descricao))
+    if(ordemEpi==='qtd') l.sort((a,b)=>a.quantidade-b.quantidade)
+    return l
+  },[epis,ordemEpi])
   const [loading,setLoading] = useState(false)
   const sf = v => setForm(p=>({...p,...v}))
 
@@ -555,16 +574,21 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
 
   return (
     <div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
         <h2 style={S.title}>🦺 Estoque de EPIs</h2>
-        <div style={{display:'flex',gap:8}}>
+        <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <select value={ordemEpi} onChange={e=>setOrdemEpi(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+            <option value="cadastro">Ordem de cadastro</option>
+            <option value="alfa">Ordem alfabética</option>
+            <option value="qtd">Por quantidade</option>
+          </select>
           <Btn variant="success" onClick={()=>setRepModal(true)}>📦 Repor Estoque</Btn>
           <Btn onClick={()=>abrir()}>+ Novo EPI</Btn>
         </div>
       </div>
       {!epis.length?<Empty msg="Nenhum EPI cadastrado."/>:(
         <div style={{display:'grid',gap:10}}>
-          {epis.map(e=>{
+          {episOrdenados.map(e=>{
             const baixo=e.quantidade<=e.minimo,d=diasVenc(e.validade),venc=d<0,em30=d<=30
             return (
               <div key={e.id} style={{...S.card,borderColor:venc?'#991b1b':baixo?'#1d4ed8':'#334155'}}>
@@ -593,7 +617,7 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
       {repModal && <ReposicaoModal epis={epis} setEpis={setEpis} onClose={()=>setRepModal(false)} toast={toast}/>}
       {modal && (
         <Modal title={editId?'Editar EPI':'Novo EPI'} onClose={()=>setModal(false)}>
-          <Inp label="ID"         value={form.id}         onChange={e=>sf({id:e.target.value})}         disabled={!!editId}/>
+          <Inp label="ID EPI"         value={form.id}         onChange={e=>sf({id:e.target.value})}         disabled={!!editId}/>
           <Inp label="Descrição"  value={form.descricao}  onChange={e=>sf({descricao:e.target.value})}/>
           <Inp label="Fabricante" value={form.fabricante} onChange={e=>sf({fabricante:e.target.value})}/>
           <Inp label="CA"         value={form.ca}         onChange={e=>sf({ca:e.target.value})}/>
@@ -793,10 +817,21 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
 
 // ─── ALERTAS ──────────────────────────────────────────────────────────────────
 function PainelAlertas({ epis }) {
-  const alertas = gerarAlertas(epis)
+  const [filtroAlerta,setFiltroAlerta] = useState('todos')
+  const todosAlertas = gerarAlertas(epis)
+  const alertas = filtroAlerta==='todos' ? todosAlertas : todosAlertas.filter(a=>a.tipo===filtroAlerta)
   return (
     <div>
-      <h2 style={S.title}>🚨 Painel de Alertas</h2>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20,flexWrap:'wrap',gap:10}}>
+        <h2 style={S.title}>🚨 Painel de Alertas</h2>
+        <div style={{display:'flex',gap:8,alignItems:'center'}}>
+          <select value={filtroAlerta} onChange={e=>setFiltroAlerta(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+            <option value="todos">Todos ({todosAlertas.length})</option>
+            <option value="estoque">Estoque ({todosAlertas.filter(a=>a.tipo==='estoque').length})</option>
+            <option value="validade">Validade ({todosAlertas.filter(a=>a.tipo==='validade').length})</option>
+          </select>
+        </div>
+      </div>
       {!alertas.length ? (
         <div style={{background:'#064e3b',border:'1px solid #065f46',borderRadius:14,padding:24,textAlign:'center'}}>
           <div style={{fontSize:32,marginBottom:8}}>✅</div>
