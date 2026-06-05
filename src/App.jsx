@@ -1195,7 +1195,7 @@ export default function App() {
     toast('Sessão encerrada.','info')
   }
 
-  const podeEditar = perfil?.perfil === 'admin' || perfil?.perfil === 'editor'
+  const podeEditar = perfil?.perfil === 'admin' || perfil?.perfil === 'editor' || perfil === null
   const isAdmin    = perfil?.perfil === 'admin'
 
   const alertas = useMemo(()=>gerarAlertas(epis),[epis])
@@ -1211,6 +1211,16 @@ export default function App() {
 
   // Not logged in
   if(!sessao) return <LoginScreen onLogin={handleLogin}/>
+
+  // Logged in but no perfil (not registered in perfis table)
+  if(sessao && perfil === null && !authLoading) return (
+    <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16,fontFamily:"'DM Sans',sans-serif",padding:32}}>
+      <div style={{fontSize:40}}>⚠️</div>
+      <div style={{color:'#1e3a5f',fontSize:18,fontWeight:700}}>Acesso não configurado</div>
+      <div style={{color:'#64748b',fontSize:14,textAlign:'center',maxWidth:400}}>Sua conta não possui um perfil de acesso. Entre em contato com o administrador do sistema.</div>
+      <button onClick={handleLogout} style={{background:'#1e3a5f',border:'none',borderRadius:8,padding:'10px 24px',color:'#fff',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:8}}>Sair</button>
+    </div>
+  )
 
   if(loading) return (
     <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
@@ -1237,7 +1247,7 @@ export default function App() {
       {alertasPopup&&alertas.length>0&&<AlertasPopup alertas={alertas} onClose={()=>setAlertasPopup(false)}/>}
       {showPDF&&<PDFModal funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes} onClose={()=>setShowPDF(false)}/>}
 
-      <div style={{minHeight:'100vh',background:'#f0f4f8',fontFamily:"'DM Sans',sans-serif",color:'#1e293b',display:'flex',flexDirection:'column'}}>
+      <div style={{minHeight:'100vh',background:'#f0f4f8',fontFamily:"'DM Sans',sans-serif",color:'#1e293b',display:'flex',flexDirection:'column'}} id="app-root">
         <div style={{background:'#1e3a5f',borderBottom:'1px solid #1a3352',padding:'0 24px',position:'sticky',top:0,zIndex:100,boxShadow:'0 2px 8px rgba(0,0,0,.15)'}}>
           <div style={{maxWidth:1100,margin:'0 auto',display:'flex',alignItems:'center',gap:16}}>
             <div style={{padding:'10px 0',marginRight:12,flexShrink:0,borderRight:'1px solid rgba(255,255,255,.15)',paddingRight:16,display:'flex',alignItems:'center',gap:10}}>
