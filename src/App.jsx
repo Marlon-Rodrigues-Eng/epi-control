@@ -677,7 +677,9 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
   const [modal,setModal] = useState(false)
   const [form,setForm] = useState({funcId:'',data:hoje(),epiId:'',quantidade:1,motivo:''})
   const [loading,setLoading] = useState(false)
-  const {paged,pg,setPg,total} = usePag(entregas)
+  const [filtFuncEnt,setFiltFuncEnt] = useState('todos')
+  const entregasFiltradas = useMemo(()=>filtFuncEnt==='todos'?entregas:entregas.filter(e=>e.funcId===filtFuncEnt),[entregas,filtFuncEnt])
+  const {paged,pg,setPg,total} = usePag(entregasFiltradas)
   const ativos = funcionarios.filter(f=>f.ativo)
 
   const salvar = async () => {
@@ -716,7 +718,13 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <h2 style={S.title}>📤 Entregas</h2>
-        <Btn onClick={()=>setModal(true)}>+ Registrar Entrega</Btn>
+        <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <select value={filtFuncEnt} onChange={e=>setFiltFuncEnt(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+            <option value="todos">Todos funcionários</option>
+            {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
+          </select>
+          <Btn onClick={()=>setModal(true)}>+ Registrar Entrega</Btn>
+        </div>
       </div>
       {!entregas.length?<Empty msg="Nenhuma entrega registrada."/>:(
         <>
@@ -749,7 +757,9 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
   const [modal,setModal] = useState(false)
   const [form,setForm] = useState({funcId:'',data:hoje(),epiId:'',quantidade:1,motivo:''})
   const [loading,setLoading] = useState(false)
-  const {paged,pg,setPg,total} = usePag(devolucoes)
+  const [filtFuncDev,setFiltFuncDev] = useState('todos')
+  const devolucoesFiltradas = useMemo(()=>filtFuncDev==='todos'?devolucoes:devolucoes.filter(d=>d.funcId===filtFuncDev),[devolucoes,filtFuncDev])
+  const {paged,pg,setPg,total} = usePag(devolucoesFiltradas)
 
   const salvar = async () => {
     const func = funcionarios.find(f=>f.id===form.funcId)
@@ -787,7 +797,13 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
         <h2 style={S.title}>📥 Devoluções</h2>
-        <Btn onClick={()=>setModal(true)}>+ Registrar Devolução</Btn>
+        <div style={{display:'flex',gap:8,alignItems:'center',flexWrap:'wrap'}}>
+          <select value={filtFuncDev} onChange={e=>setFiltFuncDev(e.target.value)} style={{background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'7px 12px',color:'#94a3b8',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+            <option value="todos">Todos funcionários</option>
+            {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
+          </select>
+          <Btn onClick={()=>setModal(true)}>+ Registrar Devolução</Btn>
+        </div>
       </div>
       {!devolucoes.length?<Empty msg="Nenhuma devolução registrada."/>:(
         <>
