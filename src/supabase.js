@@ -102,3 +102,59 @@ export async function deleteDevolucao(id) {
   const { error } = await supabase.from('devolucoes').delete().eq('id', id)
   if (error) throw error
 }
+
+// ─── AUTENTICAÇÃO ─────────────────────────────────────────────────────────────
+export async function login(email, senha) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password: senha })
+  if (error) throw error
+  return data
+}
+
+export async function logout() {
+  const { error } = await supabase.auth.signOut()
+  if (error) throw error
+}
+
+export async function getSession() {
+  const { data } = await supabase.auth.getSession()
+  return data.session
+}
+
+export async function getPerfil(userId) {
+  const { data, error } = await supabase.from('perfis').select('*').eq('id', userId).single()
+  if (error) return null
+  return data
+}
+
+// ─── GESTÃO DE USUÁRIOS (admin) ───────────────────────────────────────────────
+export async function getUsuarios() {
+  const { data, error } = await supabase.from('perfis').select('*').order('criado_em')
+  if (error) throw error
+  return data
+}
+
+export async function criarUsuario(email, senha, nome, perfil) {
+  // Cria o usuário no auth via Admin API — usa service role
+  // Como não temos service role no frontend, usamos signUp + inserção manual do perfil
+  const { data, error } = await supabase.auth.admin.createUser({
+    email,
+    password: senha,
+    email_confirm: true,
+  })
+  if (error) throw error
+  const { error: perfilError } = await supabase.from('perfis').insert({
+    id: data.user.id, nome, email, perfil
+  })
+  if (perfilError) throw perfilError
+  return data.user
+}
+
+export async function atualizarPerfil(id, nome, perfil) {
+  const { error } = await supabase.from('perfis').update({ nome, perfil }).eq('id', id)
+  if (error) throw error
+}
+
+export async function deletarUsuario(id) {
+  const { error } = await supabase.from('perfis').delete().eq('id', id)
+  if (error) throw error
+}

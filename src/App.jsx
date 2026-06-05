@@ -5,7 +5,9 @@ import {
   getFuncionarios, upsertFuncionario, deleteFuncionario,
   getEpis, upsertEpi, updateQuantidadeEpi, deleteEpi,
   getEntregas, insertEntrega, deleteEntrega,
-  getDevolucoes, insertDevolucao, deleteDevolucao
+  getDevolucoes, insertDevolucao, deleteDevolucao,
+  login, logout, getSession, getPerfil,
+  getUsuarios, atualizarPerfil, deletarUsuario
 } from './supabase'
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
@@ -473,7 +475,7 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
             <option value="cadastro">Ordem de cadastro</option>
             <option value="alfa">Ordem alfabética</option>
           </select>
-          <Btn onClick={()=>abrir()}>+ Novo Funcionário</Btn>
+          {podeEditar&&<Btn onClick={()=>abrir()}>+ Novo Funcionário</Btn>}
         </div>
       </div>
       {!funcionarios.length?<Empty msg="Nenhum funcionário cadastrado."/>:(
@@ -487,8 +489,8 @@ function Funcionarios({ funcionarios, setFuncionarios, entregas, devolucoes, toa
               <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
                 <Bdg color={f.ativo?'green':'gray'}>{f.ativo?'Ativo':'Inativo'}</Bdg>
                 <Btn small variant="ghost" onClick={()=>setHistF(f)}>📋 Histórico</Btn>
-                <Btn small variant="ghost" onClick={()=>abrir(f)}>Editar</Btn>
-                <Btn small variant="danger" onClick={()=>remover(f.id)}>Remover</Btn>
+                {podeEditar&&<Btn small variant="ghost" onClick={()=>abrir(f)}>Editar</Btn>}
+                {podeEditar&&<Btn small variant="danger" onClick={()=>remover(f.id)}>Remover</Btn>}
               </div>
             </div>
           ))}
@@ -605,10 +607,10 @@ function EstoqueEPIs({ epis, setEpis, toast }) {
                     <Kv k="Mínimo" v={`${e.minimo} un.`}/><Kv k="Peso" v={e.pesoG?`${e.pesoG}g`:'—'}/>
                   </div>
                 </div>
-                <div style={{display:'flex',gap:8,flexShrink:0}}>
+                {podeEditar&&<div style={{display:'flex',gap:8,flexShrink:0}}>
                   <Btn small variant="ghost" onClick={()=>abrir(e)}>Editar</Btn>
                   <Btn small variant="danger" onClick={()=>remover(e.id)}>Remover</Btn>
-                </div>
+                </div>}
               </div>
             )
           })}
@@ -723,14 +725,14 @@ function Entregas({ entregas, setEntregas, funcionarios, epis, setEpis, toast })
             <option value="todos">Todos funcionários</option>
             {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
           </select>
-          <Btn onClick={()=>setModal(true)}>+ Registrar Entrega</Btn>
+          {podeEditar&&<Btn onClick={()=>setModal(true)}>+ Registrar Entrega</Btn>}
         </div>
       </div>
       {!entregas.length?<Empty msg="Nenhuma entrega registrada."/>:(
         <>
           <div style={{color:'#64748b',fontSize:12,marginBottom:8}}>{entregas.length} registro(s)</div>
           <div style={{display:'grid',gap:10}}>
-            {paged.map(e=>(<div key={e.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${e.funcNome} (${e.funcId})`}/><Kv k="Data" v={fmtDate(e.data)}/><Kv k="EPI" v={e.epiDesc}/><Kv k="Qtd" v={`${e.quantidade} un.`}/><Kv k="Motivo" v={e.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="blue">Entrega</Bdg><button onClick={()=>cancelarEntrega(e)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button></div></div>))}
+            {paged.map(e=>(<div key={e.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${e.funcNome} (${e.funcId})`}/><Kv k="Data" v={fmtDate(e.data)}/><Kv k="EPI" v={e.epiDesc}/><Kv k="Qtd" v={`${e.quantidade} un.`}/><Kv k="Motivo" v={e.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="blue">Entrega</Bdg>{podeEditar&&<button onClick={()=>cancelarEntrega(e)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button>}</div></div>))}
           </div>
           <Pager pg={pg} total={total} setPg={setPg}/>
         </>
@@ -802,14 +804,14 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
             <option value="todos">Todos funcionários</option>
             {funcionarios.map(f=><option key={f.id} value={f.id}>{f.nome}</option>)}
           </select>
-          <Btn onClick={()=>setModal(true)}>+ Registrar Devolução</Btn>
+          {podeEditar&&<Btn onClick={()=>setModal(true)}>+ Registrar Devolução</Btn>}
         </div>
       </div>
       {!devolucoes.length?<Empty msg="Nenhuma devolução registrada."/>:(
         <>
           <div style={{color:'#64748b',fontSize:12,marginBottom:8}}>{devolucoes.length} registro(s)</div>
           <div style={{display:'grid',gap:10}}>
-            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="green">Devolução</Bdg><button onClick={()=>cancelarDevolucao(d)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button></div></div>))}
+            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="green">Devolução</Bdg>{podeEditar&&<button onClick={()=>cancelarDevolucao(d)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button>}</div></div>))}
           </div>
           <Pager pg={pg} total={total} setPg={setPg}/>
         </>
@@ -949,6 +951,186 @@ function Rodape({ dados, onPDF }) {
   )
 }
 
+
+// ─── LOGIN ────────────────────────────────────────────────────────────────────
+function LoginScreen({ onLogin }) {
+  const [email,setEmail] = useState('')
+  const [senha,setSenha] = useState('')
+  const [loading,setLoading] = useState(false)
+  const [erro,setErro] = useState('')
+
+  const handleLogin = async () => {
+    if(!email||!senha) return setErro('Preencha email e senha.')
+    setLoading(true); setErro('')
+    try { await onLogin(email, senha) }
+    catch(e) { setErro('Email ou senha incorretos.') }
+    finally { setLoading(false) }
+  }
+
+  return (
+    <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'DM Sans',sans-serif"}}>
+      <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+      <div style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:20,padding:40,width:'90%',maxWidth:400,boxShadow:'0 8px 32px rgba(0,0,0,.1)'}}>
+        <div style={{textAlign:'center',marginBottom:32}}>
+          <img src="https://static.wixstatic.com/media/7ee4fb_ea01331caac7470bb01de1c91f704451~mv2.png/v1/crop/x_37,y_184,w_934,h_511/fill/w_511,h_278,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Logo%20GR%20-%20Fundo%20tranparente.png"
+            alt="Guindastes Ribas" style={{height:60,marginBottom:12,filter:'brightness(0) saturate(100%) invert(14%) sepia(57%) saturate(600%) hue-rotate(190deg)'}}/>
+          <div style={{fontSize:22,fontWeight:800,fontFamily:"'Sora',sans-serif",color:'#1e3a5f'}}>EPI Control</div>
+          <div style={{color:'#64748b',fontSize:13,marginTop:4}}>Guindastes Ribas — Acesso restrito</div>
+        </div>
+        <div style={{marginBottom:16}}>
+          <label style={{display:'block',color:'#64748b',fontSize:12,fontWeight:600,marginBottom:6,textTransform:'uppercase',letterSpacing:.8}}>Email</label>
+          <input type="email" value={email} onChange={e=>setEmail(e.target.value)}
+            onKeyDown={e=>e.key==='Enter'&&handleLogin()}
+            placeholder="seu@email.com"
+            style={{width:'100%',background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:8,padding:'11px 14px',color:'#1e293b',fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit'}}/>
+        </div>
+        <div style={{marginBottom:24}}>
+          <label style={{display:'block',color:'#64748b',fontSize:12,fontWeight:600,marginBottom:6,textTransform:'uppercase',letterSpacing:.8}}>Senha</label>
+          <input type="password" value={senha} onChange={e=>setSenha(e.target.value)}
+            onKeyDown={e=>e.key==='Enter'&&handleLogin()}
+            placeholder="••••••••"
+            style={{width:'100%',background:'#f8fafc',border:'1px solid #cbd5e1',borderRadius:8,padding:'11px 14px',color:'#1e293b',fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit'}}/>
+        </div>
+        {erro&&<div style={{background:'#fee2e2',border:'1px solid #fca5a5',borderRadius:8,padding:'10px 14px',color:'#991b1b',fontSize:13,marginBottom:16}}>{erro}</div>}
+        <button onClick={handleLogin} disabled={loading}
+          style={{width:'100%',background:'linear-gradient(135deg,#1e3a5f,#2563eb)',border:'none',borderRadius:8,padding:'12px',color:'#fff',fontSize:15,fontWeight:700,cursor:loading?'not-allowed':'pointer',fontFamily:'inherit',opacity:loading?.7:1}}>
+          {loading?'Entrando...':'Entrar'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── GESTÃO DE USUÁRIOS ───────────────────────────────────────────────────────
+function GestaoUsuarios({ toast }) {
+  const [usuarios,setUsuarios] = useState([])
+  const [loading,setLoading] = useState(true)
+  const [modal,setModal] = useState(false)
+  const [form,setForm] = useState({email:'',senha:'',nome:'',perfil:'editor'})
+  const [salvando,setSalvando] = useState(false)
+
+  useEffect(()=>{
+    getUsuarios().then(setUsuarios).catch(()=>{}).finally(()=>setLoading(false))
+  },[])
+
+  const criarViaInvite = async () => {
+    if(!form.email||!form.nome||!form.perfil) return alert('Preencha todos os campos.')
+    setSalvando(true)
+    try {
+      // Use signUp for new users (they receive a confirmation email)
+      const { supabase: sb } = await import('./supabase')
+      // We'll create via admin invite approach using supabase directly
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        },
+        body: JSON.stringify({ email: form.email, password: form.senha||'Temp@1234', email_confirm: true })
+      })
+      const userData = await response.json()
+      if(userData.error) throw new Error(userData.error.message||userData.msg||'Erro ao criar usuário')
+      
+      // Insert profile
+      const { createClient } = await import('@supabase/supabase-js')
+      const client = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
+      await client.from('perfis').insert({ id: userData.id, nome: form.nome, email: form.email, perfil: form.perfil })
+      
+      toast('Usuário criado! Senha temporária: Temp@1234 (oriente a trocar)','info')
+      setUsuarios(p=>[...p,{id:userData.id,nome:form.nome,email:form.email,perfil:form.perfil}])
+      setModal(false)
+      setForm({email:'',senha:'',nome:'',perfil:'editor'})
+    } catch(e) {
+      toast('Erro: '+e.message,'error')
+    }
+    setSalvando(false)
+  }
+
+  const alterarPerfil = async (id, novoPerfil) => {
+    try {
+      await atualizarPerfil(id, usuarios.find(u=>u.id===id)?.nome, novoPerfil)
+      setUsuarios(p=>p.map(u=>u.id===id?{...u,perfil:novoPerfil}:u))
+      toast('Perfil atualizado!')
+    } catch(e) { toast('Erro: '+e.message,'error') }
+  }
+
+  const remover = async (id) => {
+    if(!confirm('Remover usuário?')) return
+    try {
+      await deletarUsuario(id)
+      setUsuarios(p=>p.filter(u=>u.id!==id))
+      toast('Usuário removido.','info')
+    } catch(e) { toast('Erro: '+e.message,'error') }
+  }
+
+  const perfilBadge = (p) => ({
+    admin:  {bg:'#fef3c7',color:'#92400e',label:'Admin'},
+    editor: {bg:'#dbeafe',color:'#1e40af',label:'Editor'},
+    leitor: {bg:'#f3f4f6',color:'#4b5563',label:'Leitor'},
+  }[p]||{bg:'#f3f4f6',color:'#4b5563',label:p}
+
+  return (
+    <div>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <h2 style={{color:'#1e293b',fontSize:20,fontWeight:700,fontFamily:"'Sora',sans-serif"}}>👥 Gestão de Usuários</h2>
+        <Btn onClick={()=>setModal(true)}>+ Novo Usuário</Btn>
+      </div>
+      <div style={{background:'#fef3c7',border:'1px solid #fcd34d',borderRadius:10,padding:'10px 16px',marginBottom:16,fontSize:13,color:'#92400e'}}>
+        ⚠️ Somente administradores têm acesso a esta aba.
+      </div>
+      {loading?<Empty msg="Carregando..."/>:!usuarios.length?<Empty msg="Nenhum usuário cadastrado."/>:(
+        <div style={{display:'grid',gap:10}}>
+          {usuarios.map(u=>{
+            const b=perfilBadge(u.perfil)
+            return(
+              <div key={u.id} style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:12,padding:'14px 18px',display:'flex',alignItems:'center',gap:14,flexWrap:'wrap',boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
+                <div style={{width:40,height:40,borderRadius:'50%',background:'linear-gradient(135deg,#1e3a5f,#2563eb)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:16,flexShrink:0}}>{u.nome[0]}</div>
+                <div style={{flex:1}}>
+                  <div style={{color:'#1e293b',fontWeight:700}}>{u.nome}</div>
+                  <div style={{color:'#64748b',fontSize:12}}>{u.email}</div>
+                </div>
+                <div style={{display:'flex',alignItems:'center',gap:8,flexWrap:'wrap'}}>
+                  <span style={{background:b.bg,color:b.color,padding:'2px 10px',borderRadius:999,fontSize:12,fontWeight:700}}>{b.label}</span>
+                  <select value={u.perfil} onChange={e=>alterarPerfil(u.id,e.target.value)}
+                    style={{background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'5px 10px',color:'#475569',fontSize:12,fontFamily:'inherit',outline:'none'}}>
+                    <option value="admin">Admin</option>
+                    <option value="editor">Editor</option>
+                    <option value="leitor">Leitor</option>
+                  </select>
+                  <Btn small variant="danger" onClick={()=>remover(u.id)}>Remover</Btn>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+      {modal&&(
+        <Modal title="Novo Usuário" onClose={()=>setModal(false)}>
+          <Inp label="Nome" value={form.nome} onChange={e=>setForm({...form,nome:e.target.value})}/>
+          <Inp label="Email" type="email" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/>
+          <div style={{marginBottom:16}}>
+            <label style={{display:'block',color:'#94a3b8',fontSize:12,fontWeight:600,marginBottom:6,textTransform:'uppercase',letterSpacing:.8}}>Perfil</label>
+            <select value={form.perfil} onChange={e=>setForm({...form,perfil:e.target.value})}
+              style={{width:'100%',background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:8,padding:'10px 14px',color:'#1e293b',fontSize:14,outline:'none',boxSizing:'border-box',fontFamily:'inherit'}}>
+              <option value="editor">Editor — acesso total de edição</option>
+              <option value="leitor">Leitor — somente visualização</option>
+              <option value="admin">Admin — acesso total + gerenciar usuários</option>
+            </select>
+          </div>
+          <div style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:8,padding:'10px 14px',marginBottom:16,fontSize:13,color:'#64748b'}}>
+            💡 O usuário será criado com senha temporária <strong>Temp@1234</strong>. Oriente-o a trocar após o primeiro acesso.
+          </div>
+          <div style={{display:'flex',gap:10,justifyContent:'flex-end'}}>
+            <Btn variant="ghost" onClick={()=>setModal(false)}>Cancelar</Btn>
+            <Btn onClick={criarViaInvite} disabled={salvando}>{salvando?'Criando...':'Criar Usuário'}</Btn>
+          </div>
+        </Modal>
+      )}
+    </div>
+  )
+}
+
 // ─── TABS ─────────────────────────────────────────────────────────────────────
 const TABS = [
   {id:'dashboard',   label:'Dashboard',    icon:'📊'},
@@ -958,6 +1140,7 @@ const TABS = [
   {id:'devolucoes',  label:'Devoluções',   icon:'📥'},
   {id:'alertas',     label:'Alertas',      icon:'⚠️'},
   {id:'ambiental',   label:'Ambiental',    icon:'🌱'},
+  {id:'usuarios',    label:'Usuários',     icon:'👥', adminOnly:true},
 ]
 
 // ─── APP ──────────────────────────────────────────────────────────────────────
@@ -971,9 +1154,26 @@ export default function App() {
   const [erro,setErro]             = useState(null)
   const [alertasPopup,setAlertasPopup] = useState(false)
   const [showPDF,setShowPDF]       = useState(false)
+  const [sessao,setSessao]         = useState(null)
+  const [perfil,setPerfil]         = useState(null)
+  const [authLoading,setAuthLoading] = useState(true)
   const { ts, add:toast }          = useToast()
 
+  // Verificar sessão ao carregar
   useEffect(()=>{
+    getSession().then(async s=>{
+      if(s){
+        setSessao(s)
+        const p = await getPerfil(s.user.id)
+        setPerfil(p)
+      }
+      setAuthLoading(false)
+    })
+  },[])
+
+  // Carregar dados quando autenticado
+  useEffect(()=>{
+    if(!sessao) return
     Promise.all([getFuncionarios(), getEpis(), getEntregas(), getDevolucoes()])
       .then(([f,e,en,d])=>{
         setFunc(f); setEpis(e); setEntregas(en); setDevolucoes(d)
@@ -981,9 +1181,41 @@ export default function App() {
         setLoading(false)
       })
       .catch(err=>{ setErro(err.message); setLoading(false) })
-  },[])
+  },[sessao])
+
+  const handleLogin = async (email, senha) => {
+    const data = await login(email, senha)
+    setSessao(data.session)
+    const p = await getPerfil(data.user.id)
+    setPerfil(p)
+    toast(`Bem-vindo, ${p?.nome||data.user.email}!`)
+  }
+
+  const handleLogout = async () => {
+    await logout()
+    setSessao(null)
+    setPerfil(null)
+    setFunc([]); setEpis([]); setEntregas([]); setDevolucoes([])
+    setLoading(true)
+    toast('Sessão encerrada.','info')
+  }
+
+  const podeEditar = perfil?.perfil === 'admin' || perfil?.perfil === 'editor'
+  const isAdmin    = perfil?.perfil === 'admin'
 
   const alertas = useMemo(()=>gerarAlertas(epis),[epis])
+
+  // Auth loading
+  if(authLoading) return (
+    <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
+      <div style={{fontSize:40}}>🦺</div>
+      <div style={{color:'#1e3a5f',fontSize:18,fontWeight:700,fontFamily:"'Sora',sans-serif"}}>EPI Control</div>
+      <div style={{color:'#64748b',fontSize:14}}>Verificando sessão...</div>
+    </div>
+  )
+
+  // Not logged in
+  if(!sessao) return <LoginScreen onLogin={handleLogin}/>
 
   if(loading) return (
     <div style={{minHeight:'100vh',background:'#f0f4f8',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}}>
@@ -1021,7 +1253,7 @@ export default function App() {
               </div>
             </div>
             <nav style={{display:'flex',gap:2,flex:1,overflowX:'auto'}}>
-              {TABS.map(t=>(
+              {TABS.filter(t=>!t.adminOnly||isAdmin).map(t=>(
                 <button key={t.id} onClick={()=>setTab(t.id)}
                   style={{background:tab===t.id?'rgba(255,255,255,.12)':'transparent',border:'none',color:tab===t.id?'#ffffff':'rgba(255,255,255,.6)',padding:'16px 12px',fontSize:12,fontWeight:600,cursor:'pointer',borderBottom:tab===t.id?'2px solid #60a5fa':'2px solid transparent',whiteSpace:'nowrap',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}>
                   {t.icon} {t.label}
@@ -1029,17 +1261,28 @@ export default function App() {
                 </button>
               ))}
             </nav>
+            <div style={{display:'flex',alignItems:'center',gap:8,flexShrink:0,paddingLeft:8,borderLeft:'1px solid rgba(255,255,255,.15)'}}>
+              <div style={{textAlign:'right'}}>
+                <div style={{color:'#fff',fontSize:12,fontWeight:600}}>{perfil?.nome||'Usuário'}</div>
+                <div style={{color:'rgba(255,255,255,.5)',fontSize:10,textTransform:'uppercase',letterSpacing:.5}}>{perfil?.perfil||''}</div>
+              </div>
+              <button onClick={handleLogout} title="Sair"
+                style={{background:'rgba(255,255,255,.1)',border:'1px solid rgba(255,255,255,.2)',borderRadius:8,padding:'6px 10px',color:'rgba(255,255,255,.8)',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}>
+                Sair
+              </button>
+            </div>
           </div>
         </div>
 
         <div style={{flex:1,maxWidth:1100,margin:'0 auto',padding:'28px 24px',width:'100%',color:'#1e293b'}}>
           {tab==='dashboard'    && <Dashboard    funcionarios={funcionarios} epis={epis} entregas={entregas} devolucoes={devolucoes}/>}
-          {tab==='funcionarios' && <Funcionarios funcionarios={funcionarios} setFuncionarios={setFunc} entregas={entregas} devolucoes={devolucoes} toast={toast}/>}
-          {tab==='epis'         && <EstoqueEPIs  epis={epis} setEpis={setEpis} toast={toast}/>}
-          {tab==='entregas'     && <Entregas     entregas={entregas} setEntregas={setEntregas} funcionarios={funcionarios} epis={epis} setEpis={setEpis} toast={toast}/>}
-          {tab==='devolucoes'   && <Devolucoes   devolucoes={devolucoes} setDevolucoes={setDevolucoes} funcionarios={funcionarios} epis={epis} setEpis={setEpis} toast={toast}/>}
+          {tab==='funcionarios' && <Funcionarios funcionarios={funcionarios} setFuncionarios={setFunc} entregas={entregas} devolucoes={devolucoes} toast={toast} podeEditar={podeEditar}/>}
+          {tab==='epis'         && <EstoqueEPIs  epis={epis} setEpis={setEpis} toast={toast} podeEditar={podeEditar}/>}
+          {tab==='entregas'     && <Entregas     entregas={entregas} setEntregas={setEntregas} funcionarios={funcionarios} epis={epis} setEpis={setEpis} toast={toast} podeEditar={podeEditar}/>}
+          {tab==='devolucoes'   && <Devolucoes   devolucoes={devolucoes} setDevolucoes={setDevolucoes} funcionarios={funcionarios} epis={epis} setEpis={setEpis} toast={toast} podeEditar={podeEditar}/>}
           {tab==='alertas'      && <PainelAlertas epis={epis}/>}
           {tab==='ambiental'    && <PainelAmbiental entregas={entregas} devolucoes={devolucoes} epis={epis}/>}
+          {tab==='usuarios'     && isAdmin && <GestaoUsuarios toast={toast}/>}
         </div>
 
         <Rodape dados={{funcionarios,epis,entregas,devolucoes}} onPDF={()=>setShowPDF(true)}/>
