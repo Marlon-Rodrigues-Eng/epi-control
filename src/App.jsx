@@ -7,7 +7,8 @@ import {
   getEntregas, insertEntrega, deleteEntrega,
   getDevolucoes, insertDevolucao, deleteDevolucao,
   login, logout, getSession, getPerfil,
-  getUsuarios, atualizarPerfil, deletarUsuario
+  getUsuarios, atualizarPerfil, deletarUsuario,
+  supabase
 } from './supabase'
 
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
@@ -1017,28 +1018,19 @@ function GestaoUsuarios({ toast }) {
     if(!form.email||!form.nome||!form.perfil) return alert('Preencha todos os campos.')
     setSalvando(true)
     try {
-      // Use signUp for new users (they receive a confirmation email)
-      const { supabase: sb } = await import('./supabase')
-      // We'll create via admin invite approach using supabase directly
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/auth/v1/admin/users`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
-        body: JSON.stringify({ email: form.email, password: form.senha||'Temp@1234', email_confirm: true })
+      const { data, error } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.senha||'Temp@1234',
       })
-      const userData = await response.json()
-      if(userData.error) throw new Error(userData.error.message||userData.msg||'Erro ao criar usuário')
-      
-      // Insert profile
-      const { createClient } = await import('@supabase/supabase-js')
-      const client = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
-      await client.from('perfis').insert({ id: userData.id, nome: form.nome, email: form.email, perfil: form.perfil })
-      
-      toast('Usuário criado! Senha temporária: Temp@1234 (oriente a trocar)','info')
-      setUsuarios(p=>[...p,{id:userData.id,nome:form.nome,email:form.email,perfil:form.perfil}])
+      if(error) throw error
+      const userId = data.user?.id
+      if(!userId) throw new Error('Usuário não criado')
+      const { error: perfilError } = await supabase.from('perfis').insert({
+        id: userId, nome: form.nome, email: form.email, perfil: form.perfil
+      })
+      if(perfilError) throw perfilError
+      toast('Usuário criado! Senha: ' + (form.senha||'Temp@1234') + ' — oriente a trocar após 1º acesso','info')
+      setUsuarios(p=>[...p,{id:userId,nome:form.nome,email:form.email,perfil:form.perfil}])
       setModal(false)
       setForm({email:'',senha:'',nome:'',perfil:'editor'})
     } catch(e) {
@@ -1064,11 +1056,14 @@ function GestaoUsuarios({ toast }) {
     } catch(e) { toast('Erro: '+e.message,'error') }
   }
 
-  const perfilBadge = (p) => ({
-    admin:  {bg:'#fef3c7',color:'#92400e',label:'Admin'},
-    editor: {bg:'#dbeafe',color:'#1e40af',label:'Editor'},
-    leitor: {bg:'#f3f4f6',color:'#4b5563',label:'Leitor'},
-  }[p]||{bg:'#f3f4f6',color:'#4b5563',label:p}
+  const perfilBadge = (p) => {
+    const m = {
+      admin:  {bg:'#fef3c7',color:'#92400e',label:'Admin'},
+      editor: {bg:'#dbeafe',color:'#1e40af',label:'Editor'},
+      leitor: {bg:'#f3f4f6',color:'#4b5563',label:'Leitor'},
+    }
+    return m[p] || {bg:'#f3f4f6',color:'#4b5563',label:p}
+  }
 
   return (
     <div>
