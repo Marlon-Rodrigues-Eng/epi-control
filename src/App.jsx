@@ -894,12 +894,21 @@ function PainelAlertas({ epis }) {
 // ─── AMBIENTAL ────────────────────────────────────────────────────────────────
 
 // ─── TOTALIZADOR DESCARTE ─────────────────────────────────────────────────────
-function TotalizadorDescarte({ totalAcumKg }) {
+function TotalizadorDescarte({ totalAcumKg, todosRes }) {
   const [descartes, setDescartes] = useState([])
   useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
 
+  // Total já descartado (soma de todas as coletas)
   const totalDescartadoKg = descartes.reduce((s,d)=>s+Number(d.pesoKg),0)
-  const pendente = Math.max(0, totalAcumKg - totalDescartadoKg)
+
+  // Pendente = resíduos gerados APÓS a data do último descarte
+  const ultimoDescarte = descartes.length>0
+    ? descartes.reduce((a,b)=>a.data>b.data?a:b)
+    : null
+
+  const pendente = ultimoDescarte
+    ? parseFloat((todosRes.filter(r=>r.data>ultimoDescarte.data).reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000).toFixed(3))
+    : totalAcumKg
 
   return (
     <>
@@ -911,7 +920,11 @@ function TotalizadorDescarte({ totalAcumKg }) {
       <div>
         <div style={{color:'#94a3b8',fontSize:10,textTransform:'uppercase',letterSpacing:.6}}>Pendente de descarte</div>
         <div style={{color:pendente>0?'#f59e0b':'#10b981',fontWeight:800,fontSize:20}}>{pendente.toFixed(3)} kg</div>
-        <div style={{color:'#64748b',fontSize:11}}>{pendente>0?'aguardando coleta':'tudo descartado ✅'}</div>
+        <div style={{color:'#64748b',fontSize:11}}>
+          {pendente>0
+            ? ultimoDescarte?`após ${fmtDate(ultimoDescarte.data)}`:'aguardando coleta'
+            : 'tudo descartado ✅'}
+        </div>
       </div>
     </>
   )
@@ -957,7 +970,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             <div style={{color:'#f1f5f9',fontWeight:800,fontSize:20}}>{totalAcumKg} kg</div>
             <div style={{color:'#64748b',fontSize:11}}>{totalAcumUn} un.</div>
           </div>
-          <TotalizadorDescarte totalAcumKg={totalAcumKg}/>
+          <TotalizadorDescarte totalAcumKg={totalAcumKg} todosRes={todosRes}/>
         </div>
       </div>
 
