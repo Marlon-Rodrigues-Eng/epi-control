@@ -892,12 +892,44 @@ function PainelAlertas({ epis }) {
 }
 
 // ─── AMBIENTAL ────────────────────────────────────────────────────────────────
+
+// ─── TOTALIZADOR DESCARTE ─────────────────────────────────────────────────────
+function TotalizadorDescarte({ totalAcumKg }) {
+  const [descartes, setDescartes] = useState([])
+  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
+
+  const totalDescartadoKg = descartes.reduce((s,d)=>s+Number(d.pesoKg),0)
+  const pendente = Math.max(0, totalAcumKg - totalDescartadoKg)
+
+  return (
+    <>
+      <div>
+        <div style={{color:'#94a3b8',fontSize:10,textTransform:'uppercase',letterSpacing:.6}}>Já descartado</div>
+        <div style={{color:'#10b981',fontWeight:800,fontSize:20}}>{totalDescartadoKg.toFixed(3)} kg</div>
+        <div style={{color:'#64748b',fontSize:11}}>{descartes.length} coleta(s)</div>
+      </div>
+      <div>
+        <div style={{color:'#94a3b8',fontSize:10,textTransform:'uppercase',letterSpacing:.6}}>Pendente de descarte</div>
+        <div style={{color:pendente>0?'#f59e0b':'#10b981',fontWeight:800,fontSize:20}}>{pendente.toFixed(3)} kg</div>
+        <div style={{color:'#64748b',fontSize:11}}>{pendente>0?'aguardando coleta':'tudo descartado ✅'}</div>
+      </div>
+    </>
+  )
+}
+
 function PainelAmbiental({ entregas, devolucoes, epis }) {
   const ano = new Date().getFullYear()
   const [dIni,setDIni] = useState(`${ano}-01-01`)
   const [dFim,setDFim] = useState(hoje())
   const G = S.grn
-  const res = useMemo(()=>calcResiduos(entregas,devolucoes,epis).filter(r=>r.data>=dIni&&r.data<=dFim),[entregas,devolucoes,epis,dIni,dFim])
+
+  // Todos os resíduos (imutável - sem filtro de data)
+  const todosRes = useMemo(()=>calcResiduos(entregas,devolucoes,epis),[entregas,devolucoes,epis])
+  const totalAcumUn  = todosRes.reduce((s,r)=>s+r.quantidade,0)
+  const totalAcumKg  = parseFloat((todosRes.reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000).toFixed(3))
+
+  // Resíduos filtrados por período
+  const res = useMemo(()=>todosRes.filter(r=>r.data>=dIni&&r.data<=dFim),[todosRes,dIni,dFim])
   const totalUn = res.reduce((s,r)=>s+r.quantidade,0)
   const totalKg = (res.reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000).toFixed(2)
   const porEpi = useMemo(()=>{const m={};res.forEach(r=>{m[r.epiDesc]=m[r.epiDesc]||{epi:r.epiDesc,un:0,kg:0};m[r.epiDesc].un+=r.quantidade;m[r.epiDesc].kg+=(r.pesoG*r.quantidade)/1000});return Object.values(m).sort((a,b)=>b.kg-a.kg).map(r=>({...r,kg:parseFloat(r.kg.toFixed(3)),epiS:r.epi.length>18?r.epi.slice(0,17)+'…':r.epi}))},[res])
@@ -910,6 +942,25 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
         <FDate label="De" value={dIni} onChange={setDIni}/><FDate label="Até" value={dFim} onChange={setDFim}/>
         <button onClick={()=>{setDIni(`${ano}-01-01`);setDFim(hoje())}} style={{background:'transparent',border:'1px solid #334155',borderRadius:8,color:'#94a3b8',fontSize:12,padding:'7px 14px',cursor:'pointer',fontFamily:'inherit',alignSelf:'flex-end'}}>↺ Limpar</button>
       </div>
+      {/* Totalizador geral imutável */}
+      <div style={{background:'#1e3a5f',border:'1px solid #2563eb',borderRadius:14,padding:'16px 20px',marginBottom:16,display:'flex',flexWrap:'wrap',gap:20,alignItems:'center'}}>
+        <div style={{display:'flex',alignItems:'center',gap:10,marginRight:8}}>
+          <span style={{fontSize:20}}>📊</span>
+          <div>
+            <div style={{color:'#93c5fd',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8}}>Total Acumulado de Resíduos</div>
+            <div style={{color:'#64748b',fontSize:10,marginTop:1}}>Histórico completo — todos os períodos</div>
+          </div>
+        </div>
+        <div style={{display:'flex',gap:24,flexWrap:'wrap',flex:1}}>
+          <div>
+            <div style={{color:'#94a3b8',fontSize:10,textTransform:'uppercase',letterSpacing:.6}}>Total gerado</div>
+            <div style={{color:'#f1f5f9',fontWeight:800,fontSize:20}}>{totalAcumKg} kg</div>
+            <div style={{color:'#64748b',fontSize:11}}>{totalAcumUn} un.</div>
+          </div>
+          <TotalizadorDescarte totalAcumKg={totalAcumKg}/>
+        </div>
+      </div>
+
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:14,marginBottom:24}}>
         {[{l:'EPIs descartados',v:totalUn+' un.',i:'🗑️',c:'#f59e0b',s:'no período'},{l:'Peso total',v:totalKg+' kg',i:'⚖️',c:'#10b981',s:`${(Number(totalKg)*1000).toLocaleString('pt-BR')} g`},{l:'Tipos de EPI',v:porEpi.length,i:'🦺',c:'#6366f1',s:'com descarte'}].map(k=>(
           <div key={k.l} style={{background:'#ffffff',borderRadius:14,padding:'18px 20px',border:'1px solid #cbd5e1',borderTop:`3px solid ${k.c}`,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
