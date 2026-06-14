@@ -934,7 +934,8 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
   const [descartes,setDescartes] = useState([])
   const G = S.grn
 
-  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
+  const recarregarDescartes = useCallback(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
+  useEffect(()=>{ recarregarDescartes() },[])
 
   // Todos os resíduos (imutável - sem filtro de data)
   const todosRes = useMemo(()=>calcResiduos(entregas,devolucoes,epis),[entregas,devolucoes,epis])
@@ -1007,7 +1008,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             </table>
           </ChartCard>
           <ChartCard title="💰 Estimativa de Custo de Descarte" span2>
-            <EstimativaCusto totalKg={Number(totalKg)} todosRes={todosRes} dIni={dIni} dFim={dFim} podeEditar={true} descartes={descartes} setDescartes={setDescartes}/>
+            <EstimativaCusto totalKg={Number(totalKg)} todosRes={todosRes} dIni={dIni} dFim={dFim} podeEditar={true} descartes={descartes} setDescartes={setDescartes} onUpdate={recarregarDescartes}/>
           </ChartCard>
         </div>
       )}
@@ -1016,7 +1017,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
 }
 
 // ─── ESTIMATIVA DE CUSTO ──────────────────────────────────────────────────────
-function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=[], setDescartes }) {
+function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=[], setDescartes, onUpdate }) {
   const [custoColeta, setCustoColeta] = useState(380)
   const [custoKg, setCustoKg] = useState(0.56)
   const [modal, setModal] = useState(false)
@@ -1047,6 +1048,7 @@ function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=
     try {
       const novo = await insertDescarte({ data:form.data, pesoKg:pesoParaCalcular, custoTotal:total, observacao:form.observacao })
       setDescartes(p=>[novo,...p].sort((a,b)=>b.data.localeCompare(a.data)))
+      if(onUpdate) onUpdate()
       setModal(false)
       setForm({ data:hoje(), observacao:'' })
     } catch(e) { alert('Erro: '+e.message) }
@@ -1055,7 +1057,7 @@ function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=
 
   const removerDescarte = async (id) => {
     if(!confirm('Remover registro de descarte?')) return
-    try { await deleteDescarte(id); setDescartes(p=>p.filter(d=>d.id!==id)) }
+    try { await deleteDescarte(id); setDescartes(p=>p.filter(d=>d.id!==id)); if(onUpdate) onUpdate() }
     catch(e) { alert('Erro: '+e.message) }
   }
 
