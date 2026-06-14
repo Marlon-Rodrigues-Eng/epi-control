@@ -160,3 +160,27 @@ export async function deletarUsuario(id) {
   const { error } = await supabase.from('perfis').delete().eq('id', id)
   if (error) throw error
 }
+
+// ─── DESCARTES ────────────────────────────────────────────────────────────────
+export async function getDescartes() {
+  const { data, error } = await supabase.from('descartes').select('*').order('data', { ascending: false })
+  if (error) throw error
+  return data.map(d => ({
+    id: d.id, data: d.data, pesoKg: d.peso_kg,
+    custoTotal: d.custo_total, observacao: d.observacao
+  }))
+}
+
+export async function insertDescarte(d) {
+  const { data, error } = await supabase.from('descartes').insert({
+    data: d.data, peso_kg: d.pesoKg,
+    custo_total: d.custoTotal, observacao: d.observacao || ''
+  }).select().single()
+  if (error) throw error
+  return { ...d, id: data.id }
+}
+
+export async function deleteDescarte(id) {
+  const { error } = await supabase.from('descartes').delete().eq('id', id)
+  if (error) throw error
+}

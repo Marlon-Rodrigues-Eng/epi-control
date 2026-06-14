@@ -8,6 +8,7 @@ import {
   getDevolucoes, insertDevolucao, deleteDevolucao,
   login, logout, getSession, getPerfil,
   getUsuarios, atualizarPerfil, deletarUsuario,
+  getDescartes, insertDescarte, deleteDescarte,
   supabase
 } from './supabase'
 
@@ -942,7 +943,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             </table>
           </ChartCard>
           <ChartCard title="💰 Estimativa de Custo de Descarte" span2>
-            <EstimativaCusto totalKg={Number(totalKg)}/>
+            <EstimativaCusto totalKg={Number(totalKg)} dIni={dIni} dFim={dFim} podeEditar={true}/>
           </ChartCard>
         </div>
       )}
@@ -951,15 +952,50 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
 }
 
 // ─── ESTIMATIVA DE CUSTO ──────────────────────────────────────────────────────
-function EstimativaCusto({ totalKg }) {
+function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
   const [custoColeta, setCustoColeta] = useState(380)
   const [custoKg, setCustoKg] = useState(0.56)
+  const [descartes, setDescartes] = useState([])
+  const [modal, setModal] = useState(false)
+  const [form, setForm] = useState({ data: hoje(), observacao: '' })
+  const [loading, setLoading] = useState(false)
   const MTR = 60
+
+  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
+
+  // Último descarte dentro do período
+  const ultimoDescarte = useMemo(()=>{
+    const noperiodo = descartes.filter(d=>d.data>=dIni&&d.data<=dFim)
+    return noperiodo.length>0?noperiodo[0]:null
+  },[descartes,dIni,dFim])
+
   const variavelKg = totalKg * custoKg
   const total = custoColeta + variavelKg + MTR
   const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+
+  const registrarDescarte = async () => {
+    if(!form.data) return alert('Informe a data.')
+    setLoading(true)
+    try {
+      const novo = await insertDescarte({ data:form.data, pesoKg:totalKg, custoTotal:total, observacao:form.observacao })
+      setDescartes(p=>[novo,...p])
+      setModal(false)
+      setForm({ data:hoje(), observacao:'' })
+    } catch(e) { alert('Erro: '+e.message) }
+    setLoading(false)
+  }
+
+  const removerDescarte = async (id) => {
+    if(!confirm('Remover registro de descarte?')) return
+    try { await deleteDescarte(id); setDescartes(p=>p.filter(d=>d.id!==id)) }
+    catch(e) { alert('Erro: '+e.message) }
+  }
+
+  const descartesNoPeriodo = descartes.filter(d=>d.data>=dIni&&d.data<=dFim)
+
   return (
     <div>
+      {/* Campos de custo */}
       <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:20}}>
         <div style={{flex:1,minWidth:180}}>
           <label style={{display:'block',color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>Coleta fracionada (R$)</label>
@@ -985,8 +1021,10 @@ function EstimativaCusto({ totalKg }) {
           <div style={{color:'#475569',fontSize:11,marginTop:4}}>Fixo — emissão e registro SINIR</div>
         </div>
       </div>
-      <div style={{background:'#0f172a',borderRadius:12,padding:'16px 20px'}}>
-        <div style={{color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>Composição do custo estimado</div>
+
+      {/* Resumo estimado */}
+      <div style={{background:'#0f172a',borderRadius:12,padding:'16px 20px',marginBottom:20}}>
+        <div style={{color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>Estimativa para o período selecionado</div>
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           {[
             {l:'Coleta fracionada', v:custoColeta, c:'#60a5fa'},
@@ -1004,8 +1042,63 @@ function EstimativaCusto({ totalKg }) {
           </div>
         </div>
         {totalKg===0&&<div style={{color:'#475569',fontSize:12,marginTop:8,textAlign:'center'}}>Nenhum resíduo no período selecionado.</div>}
-        <div style={{marginTop:12,color:'#475569',fontSize:11,fontStyle:'italic'}}>* Estimativa baseada em classificação como material contaminado. Valores reais podem variar conforme triagem.</div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:16,flexWrap:'wrap',gap:8}}>
+          <div style={{color:'#475569',fontSize:11,fontStyle:'italic'}}>* Estimativa como material contaminado. Valores reais podem variar.</div>
+          {podeEditar&&<button onClick={()=>setModal(true)}
+            style={{background:'linear-gradient(135deg,#1e3a5f,#2563eb)',border:'none',borderRadius:8,padding:'8px 16px',color:'#fff',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+            ✅ Registrar Descarte Realizado
+          </button>}
+        </div>
       </div>
+
+      {/* Histórico de descartes */}
+      <div>
+        <div style={{color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>
+          Histórico de Descartes Realizados {descartesNoPeriodo.length>0?`(${descartesNoPeriodo.length} no período)`:''}
+        </div>
+        {descartes.length===0?(
+          <div style={{color:'#475569',fontSize:13,textAlign:'center',padding:'20px 0'}}>Nenhum descarte registrado ainda.</div>
+        ):(
+          <div style={{display:'flex',flexDirection:'column',gap:8,maxHeight:300,overflowY:'auto'}}>
+            {descartes.map(d=>(
+              <div key={d.id} style={{background:d.data>=dIni&&d.data<=dFim?'#0f2a1a':'#0f172a',border:`1px solid ${d.data>=dIni&&d.data<=dFim?'#065f46':'#1e293b'}`,borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
+                <div style={{flex:1}}>
+                  <div style={{display:'flex',gap:16,flexWrap:'wrap'}}>
+                    <div><div style={{color:'#64748b',fontSize:10,textTransform:'uppercase'}}>Data</div><div style={{color:'#f1f5f9',fontWeight:700}}>{fmtDate(d.data)}</div></div>
+                    <div><div style={{color:'#64748b',fontSize:10,textTransform:'uppercase'}}>Peso</div><div style={{color:'#10b981',fontWeight:700}}>{d.pesoKg} kg</div></div>
+                    <div><div style={{color:'#64748b',fontSize:10,textTransform:'uppercase'}}>Custo</div><div style={{color:'#60a5fa',fontWeight:700}}>{fmt(Number(d.custoTotal))}</div></div>
+                    {d.observacao&&<div><div style={{color:'#64748b',fontSize:10,textTransform:'uppercase'}}>Obs.</div><div style={{color:'#94a3b8',fontSize:12}}>{d.observacao}</div></div>}
+                  </div>
+                </div>
+                {podeEditar&&<button onClick={()=>removerDescarte(d.id)}
+                  style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>
+                  ✕ Remover
+                </button>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal registrar descarte */}
+      {modal&&(
+        <Modal title="✅ Registrar Descarte Realizado" onClose={()=>setModal(false)}>
+          <div style={{background:'#0f172a',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
+            <div style={{color:'#94a3b8',fontSize:12,marginBottom:4}}>Peso a descartar (período selecionado)</div>
+            <div style={{color:'#10b981',fontSize:22,fontWeight:800}}>{totalKg} kg</div>
+          </div>
+          <div style={{background:'#0f172a',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
+            <div style={{color:'#94a3b8',fontSize:12,marginBottom:4}}>Custo estimado</div>
+            <div style={{color:'#60a5fa',fontSize:22,fontWeight:800}}>{fmt(total)}</div>
+          </div>
+          <Inp label="Data do descarte" type="date" value={form.data} onChange={e=>setForm(p=>({...p,data:e.target.value}))}/>
+          <Inp label="Observação (opcional)" value={form.observacao} onChange={e=>setForm(p=>({...p,observacao:e.target.value}))} placeholder="Ex: Coletado pela Ares do Paraná"/>
+          <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8}}>
+            <Btn variant="ghost" onClick={()=>setModal(false)}>Cancelar</Btn>
+            <Btn variant="success" onClick={registrarDescarte} disabled={loading}>{loading?'Salvando...':'Confirmar Descarte'}</Btn>
+          </div>
+        </Modal>
+      )}
     </div>
   )
 }
