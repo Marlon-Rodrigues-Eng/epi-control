@@ -941,8 +941,71 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
               <tfoot><tr style={{borderTop:'1px solid #334155'}}><td style={{color:'#64748b',padding:'8px 10px',fontWeight:700}} colSpan={2}>Total — {totalUn} un.</td><td/><td style={{color:'#10b981',padding:'8px 10px',fontWeight:800}}>{totalKg} kg</td></tr></tfoot>
             </table>
           </ChartCard>
+          <ChartCard title="💰 Estimativa de Custo de Descarte" span2>
+            <EstimativaCusto totalKg={Number(totalKg)}/>
+          </ChartCard>
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── ESTIMATIVA DE CUSTO ──────────────────────────────────────────────────────
+function EstimativaCusto({ totalKg }) {
+  const [custoColeta, setCustoColeta] = useState(380)
+  const [custoKg, setCustoKg] = useState(0.56)
+  const MTR = 60
+  const variavelKg = totalKg * custoKg
+  const total = custoColeta + variavelKg + MTR
+  const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
+  return (
+    <div>
+      <div style={{display:'flex',gap:16,flexWrap:'wrap',marginBottom:20}}>
+        <div style={{flex:1,minWidth:180}}>
+          <label style={{display:'block',color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>Coleta fracionada (R$)</label>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{color:'#64748b',fontSize:13}}>R$</span>
+            <input type="number" min="0" step="0.01" value={custoColeta} onChange={e=>setCustoColeta(Number(e.target.value))}
+              style={{flex:1,background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'8px 12px',color:'#f1f5f9',fontSize:14,outline:'none',fontFamily:'inherit'}}/>
+          </div>
+          <div style={{color:'#475569',fontSize:11,marginTop:4}}>Valor fixo por coleta realizada</div>
+        </div>
+        <div style={{flex:1,minWidth:180}}>
+          <label style={{display:'block',color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>Custo por kg (R$)</label>
+          <div style={{display:'flex',alignItems:'center',gap:8}}>
+            <span style={{color:'#64748b',fontSize:13}}>R$</span>
+            <input type="number" min="0" step="0.01" value={custoKg} onChange={e=>setCustoKg(Number(e.target.value))}
+              style={{flex:1,background:'#0f172a',border:'1px solid #334155',borderRadius:8,padding:'8px 12px',color:'#f1f5f9',fontSize:14,outline:'none',fontFamily:'inherit'}}/>
+          </div>
+          <div style={{color:'#475569',fontSize:11,marginTop:4}}>Custo variável por kg de material</div>
+        </div>
+        <div style={{flex:1,minWidth:180}}>
+          <label style={{display:'block',color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>MTR Mensal (R$)</label>
+          <div style={{background:'#0f172a',border:'1px solid #1e293b',borderRadius:8,padding:'8px 12px',color:'#64748b',fontSize:14}}>R$ 60,00</div>
+          <div style={{color:'#475569',fontSize:11,marginTop:4}}>Fixo — emissão e registro SINIR</div>
+        </div>
+      </div>
+      <div style={{background:'#0f172a',borderRadius:12,padding:'16px 20px'}}>
+        <div style={{color:'#94a3b8',fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:.8,marginBottom:12}}>Composição do custo estimado</div>
+        <div style={{display:'flex',flexDirection:'column',gap:8}}>
+          {[
+            {l:'Coleta fracionada', v:custoColeta, c:'#60a5fa'},
+            {l:`Material contaminado (${totalKg} kg × R$ ${custoKg.toFixed(2)}/kg)`, v:variavelKg, c:'#f59e0b'},
+            {l:'MTR mensal (fixo)', v:MTR, c:'#94a3b8'},
+          ].map(r=>(
+            <div key={r.l} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #1e293b'}}>
+              <span style={{color:'#cbd5e1',fontSize:13}}>{r.l}</span>
+              <span style={{color:r.c,fontWeight:700,fontSize:14}}>{fmt(r.v)}</span>
+            </div>
+          ))}
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'12px 0 4px'}}>
+            <span style={{color:'#f1f5f9',fontWeight:700,fontSize:15}}>Total estimado</span>
+            <span style={{color:'#10b981',fontWeight:800,fontSize:20}}>{fmt(total)}</span>
+          </div>
+        </div>
+        {totalKg===0&&<div style={{color:'#475569',fontSize:12,marginTop:8,textAlign:'center'}}>Nenhum resíduo no período selecionado.</div>}
+        <div style={{marginTop:12,color:'#475569',fontSize:11,fontStyle:'italic'}}>* Estimativa baseada em classificação como material contaminado. Valores reais podem variar conforme triagem.</div>
+      </div>
     </div>
   )
 }
