@@ -587,8 +587,8 @@ function EstoqueEPIs({ epis, setEpis, toast, podeEditar=true }) {
             <option value="alfa">Ordem alfabética</option>
             <option value="qtd">Por quantidade</option>
           </select>
-          <Btn variant="success" onClick={()=>setRepModal(true)}>📦 Repor Estoque</Btn>
-          <Btn onClick={()=>abrir()}>+ Novo EPI</Btn>
+          {podeEditar&&<Btn variant="success" onClick={()=>setRepModal(true)}>📦 Repor Estoque</Btn>}
+          {podeEditar&&<Btn onClick={()=>abrir()}>+ Novo EPI</Btn>}
         </div>
       </div>
       {!epis.length?<Empty msg="Nenhum EPI cadastrado."/>:(
