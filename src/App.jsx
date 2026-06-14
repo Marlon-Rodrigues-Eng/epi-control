@@ -894,10 +894,7 @@ function PainelAlertas({ epis }) {
 // ─── AMBIENTAL ────────────────────────────────────────────────────────────────
 
 // ─── TOTALIZADOR DESCARTE ─────────────────────────────────────────────────────
-function TotalizadorDescarte({ totalAcumKg, todosRes }) {
-  const [descartes, setDescartes] = useState([])
-  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
-
+function TotalizadorDescarte({ totalAcumKg, todosRes, descartes=[] }) {
   // Total já descartado (soma de todas as coletas)
   const totalDescartadoKg = descartes.reduce((s,d)=>s+Number(d.pesoKg),0)
 
@@ -934,7 +931,10 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
   const ano = new Date().getFullYear()
   const [dIni,setDIni] = useState(`${ano}-01-01`)
   const [dFim,setDFim] = useState(hoje())
+  const [descartes,setDescartes] = useState([])
   const G = S.grn
+
+  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
 
   // Todos os resíduos (imutável - sem filtro de data)
   const todosRes = useMemo(()=>calcResiduos(entregas,devolucoes,epis),[entregas,devolucoes,epis])
@@ -970,7 +970,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             <div style={{color:'#f1f5f9',fontWeight:800,fontSize:20}}>{totalAcumKg} kg</div>
             <div style={{color:'#64748b',fontSize:11}}>{totalAcumUn} un.</div>
           </div>
-          <TotalizadorDescarte totalAcumKg={totalAcumKg} todosRes={todosRes}/>
+          <TotalizadorDescarte totalAcumKg={totalAcumKg} todosRes={todosRes} descartes={descartes}/>
         </div>
       </div>
 
@@ -1007,7 +1007,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             </table>
           </ChartCard>
           <ChartCard title="💰 Estimativa de Custo de Descarte" span2>
-            <EstimativaCusto totalKg={Number(totalKg)} todosRes={todosRes} dIni={dIni} dFim={dFim} podeEditar={true}/>
+            <EstimativaCusto totalKg={Number(totalKg)} todosRes={todosRes} dIni={dIni} dFim={dFim} podeEditar={true} descartes={descartes} setDescartes={setDescartes}/>
           </ChartCard>
         </div>
       )}
@@ -1016,16 +1016,13 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
 }
 
 // ─── ESTIMATIVA DE CUSTO ──────────────────────────────────────────────────────
-function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar }) {
+function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=[], setDescartes }) {
   const [custoColeta, setCustoColeta] = useState(380)
   const [custoKg, setCustoKg] = useState(0.56)
-  const [descartes, setDescartes] = useState([])
   const [modal, setModal] = useState(false)
   const [form, setForm] = useState({ data: hoje(), observacao: '' })
   const [loading, setLoading] = useState(false)
   const MTR = 60
-
-  useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
 
   // Último descarte registrado (global)
   const ultimoDescarte = useMemo(()=>{
@@ -1049,7 +1046,7 @@ function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar }) {
     setLoading(true)
     try {
       const novo = await insertDescarte({ data:form.data, pesoKg:pesoParaCalcular, custoTotal:total, observacao:form.observacao })
-      setDescartes(p=>[novo,...p])
+      setDescartes(p=>[novo,...p].sort((a,b)=>b.data.localeCompare(a.data)))
       setModal(false)
       setForm({ data:hoje(), observacao:'' })
     } catch(e) { alert('Erro: '+e.message) }
