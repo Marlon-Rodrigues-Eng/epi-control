@@ -1007,7 +1007,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
             </table>
           </ChartCard>
           <ChartCard title="💰 Estimativa de Custo de Descarte" span2>
-            <EstimativaCusto totalKg={Number(totalKg)} dIni={dIni} dFim={dFim} podeEditar={true}/>
+            <EstimativaCusto totalKg={Number(totalKg)} todosRes={todosRes} dIni={dIni} dFim={dFim} podeEditar={true}/>
           </ChartCard>
         </div>
       )}
@@ -1016,7 +1016,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
 }
 
 // ─── ESTIMATIVA DE CUSTO ──────────────────────────────────────────────────────
-function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
+function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar }) {
   const [custoColeta, setCustoColeta] = useState(380)
   const [custoKg, setCustoKg] = useState(0.56)
   const [descartes, setDescartes] = useState([])
@@ -1027,13 +1027,20 @@ function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
 
   useEffect(()=>{ getDescartes().then(setDescartes).catch(()=>{}) },[])
 
-  // Último descarte dentro do período
+  // Último descarte registrado (global)
   const ultimoDescarte = useMemo(()=>{
-    const noperiodo = descartes.filter(d=>d.data>=dIni&&d.data<=dFim)
-    return noperiodo.length>0?noperiodo[0]:null
-  },[descartes,dIni,dFim])
+    return descartes.length>0 ? descartes.reduce((a,b)=>a.data>b.data?a:b) : null
+  },[descartes])
 
-  const variavelKg = totalKg * custoKg
+  // Peso pendente = resíduos gerados APÓS o último descarte
+  const pesoParaCalcular = useMemo(()=>{
+    if(!ultimoDescarte) return totalKg
+    const pendente = (todosRes||[]).filter(r=>r.data>ultimoDescarte.data)
+      .reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000
+    return parseFloat(pendente.toFixed(3))
+  },[ultimoDescarte, todosRes, totalKg])
+
+  const variavelKg = pesoParaCalcular * custoKg
   const total = custoColeta + variavelKg + MTR
   const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
 
@@ -1041,7 +1048,7 @@ function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
     if(!form.data) return alert('Informe a data.')
     setLoading(true)
     try {
-      const novo = await insertDescarte({ data:form.data, pesoKg:totalKg, custoTotal:total, observacao:form.observacao })
+      const novo = await insertDescarte({ data:form.data, pesoKg:pesoParaCalcular, custoTotal:total, observacao:form.observacao })
       setDescartes(p=>[novo,...p])
       setModal(false)
       setForm({ data:hoje(), observacao:'' })
@@ -1092,7 +1099,7 @@ function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
         <div style={{display:'flex',flexDirection:'column',gap:8}}>
           {[
             {l:'Coleta fracionada', v:custoColeta, c:'#60a5fa'},
-            {l:`Material contaminado (${totalKg} kg × R$ ${custoKg.toFixed(2)}/kg)`, v:variavelKg, c:'#f59e0b'},
+            {l:`Material contaminado (${pesoParaCalcular} kg × R$ ${custoKg.toFixed(2)}/kg)`, v:variavelKg, c:'#f59e0b'},
             {l:'MTR mensal (fixo)', v:MTR, c:'#94a3b8'},
           ].map(r=>(
             <div key={r.l} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #1e293b'}}>
@@ -1149,7 +1156,7 @@ function EstimativaCusto({ totalKg, dIni, dFim, podeEditar }) {
         <Modal title="✅ Registrar Descarte Realizado" onClose={()=>setModal(false)}>
           <div style={{background:'#0f172a',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
             <div style={{color:'#94a3b8',fontSize:12,marginBottom:4}}>Peso a descartar (período selecionado)</div>
-            <div style={{color:'#10b981',fontSize:22,fontWeight:800}}>{totalKg} kg</div>
+            <div style={{color:'#10b981',fontSize:22,fontWeight:800}}>{pesoParaCalcular} kg</div>
           </div>
           <div style={{background:'#0f172a',borderRadius:10,padding:'12px 16px',marginBottom:16}}>
             <div style={{color:'#94a3b8',fontSize:12,marginBottom:4}}>Custo estimado</div>
