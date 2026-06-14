@@ -39,7 +39,9 @@ function gerarAlertas(epis) {
 function calcResiduos(entregas, devolucoes, epis) {
   const pm = {}; epis.forEach(e => pm[e.id] = e.pesoG||0)
   return [
-    ...devolucoes.filter(d=>RESIDUO_DEV.has(d.motivo)).map(d=>({...d,pesoG:pm[d.epiId]||0,origem:'Devolução'})),
+    // Devolução é resíduo se retornaEstoque === false (campo novo) OU se motivo é de descarte (compatibilidade)
+    ...devolucoes.filter(d => d.retornaEstoque === false || (d.retornaEstoque === undefined && RESIDUO_DEV.has(d.motivo)))
+      .map(d=>({...d,pesoG:pm[d.epiId]||0,origem:'Devolução'})),
     ...entregas.filter(e=>RESIDUO_ENT.has(e.motivo)).map(e=>({...e,pesoG:pm[e.epiId]||0,origem:'Perda'})),
   ]
 }
@@ -773,11 +775,13 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
     if(!form.motivo) return alert('Selecione o motivo.')
     setLoading(true)
     try {
-      const novaDev = await insertDevolucao({funcId:func.id,funcNome:func.nome,epiId:epi.id,epiDesc:epi.descricao,data:form.data,quantidade:qtd,motivo:form.motivo})
-      const novaQtd = epi.quantidade + qtd
-      await updateQuantidadeEpi(epi.id, novaQtd)
+      const novaDev = await insertDevolucao({funcId:func.id,funcNome:func.nome,epiId:epi.id,epiDesc:epi.descricao,data:form.data,quantidade:qtd,motivo:form.motivo,retornaEstoque:form.retornaEstoque})
       setDevolucoes(p=>[novaDev,...p])
-      setEpis(p=>p.map(e=>e.id===epi.id?{...e,quantidade:novaQtd}:e))
+      if(form.retornaEstoque) {
+        const novaQtd = epi.quantidade + qtd
+        await updateQuantidadeEpi(epi.id, novaQtd)
+        setEpis(p=>p.map(e=>e.id===epi.id?{...e,quantidade:novaQtd}:e))
+      }
       toast('Devolução registrada!')
       setModal(false); setForm({funcId:'',data:hoje(),epiId:'',quantidade:1,motivo:''})
     } catch(e) { toast('Erro: '+e.message,'error') }
@@ -812,7 +816,7 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
         <>
           <div style={{color:'#64748b',fontSize:12,marginBottom:8}}>{devolucoes.length} registro(s)</div>
           <div style={{display:'grid',gap:10}}>
-            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="green">Devolução</Bdg>{podeEditar&&<button onClick={()=>cancelarDevolucao(d)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button>}</div></div>))}
+            {paged.map(d=>(<div key={d.id} style={S.card}><div style={{flex:1}}><div style={{display:'flex',gap:20,flexWrap:'wrap'}}><Kv k="Funcionário" v={`${d.funcNome} (${d.funcId})`}/><Kv k="Data" v={fmtDate(d.data)}/><Kv k="EPI" v={d.epiDesc}/><Kv k="Qtd" v={`${d.quantidade} un.`}/><Kv k="Motivo" v={d.motivo}/><Kv k="Estoque" v={d.retornaEstoque?'Retornou':'Descartado'}/></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><Bdg color="green">Devolução</Bdg>{podeEditar&&<button onClick={()=>cancelarDevolucao(d)} style={{background:'#450a0a',border:'1px solid #991b1b',borderRadius:6,color:'#fca5a5',fontSize:11,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap'}}>✕ Cancelar</button>}</div></div>))}
           </div>
           <Pager pg={pg} total={total} setPg={setPg}/>
         </>
@@ -824,6 +828,21 @@ function Devolucoes({ devolucoes, setDevolucoes, funcionarios, epis, setEpis, to
           <Sel label="EPI" value={form.epiId} onChange={v=>setForm(p=>({...p,epiId:v}))} options={epis.map(e=>({value:e.id,label:e.descricao}))}/>
           <Inp label="Quantidade" type="number" min="1" value={form.quantidade} onChange={e=>setForm(p=>({...p,quantidade:e.target.value}))}/>
           <Sel label="Motivo" value={form.motivo} onChange={v=>setForm(p=>({...p,motivo:v}))} options={MOTIVOS_DEVOLUCAO.map(m=>({value:m,label:m}))}/>
+          <div style={{marginBottom:16}}>
+            <label style={{display:'block',color:'#94a3b8',fontSize:12,fontWeight:600,marginBottom:10,textTransform:'uppercase',letterSpacing:.8}}>Retorna ao estoque?</label>
+            <div style={{display:'flex',gap:10}}>
+              <button onClick={()=>setForm(p=>({...p,retornaEstoque:true}))}
+                style={{flex:1,padding:'10px',borderRadius:8,border:`2px solid ${form.retornaEstoque?'#10b981':'#cbd5e1'}`,background:form.retornaEstoque?'#d1fae5':'#ffffff',color:form.retornaEstoque?'#065f46':'#64748b',fontWeight:600,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>
+                ✅ Sim — volta ao estoque
+              </button>
+              <button onClick={()=>setForm(p=>({...p,retornaEstoque:false}))}
+                style={{flex:1,padding:'10px',borderRadius:8,border:`2px solid ${!form.retornaEstoque?'#ef4444':'#cbd5e1'}`,background:!form.retornaEstoque?'#fee2e2':'#ffffff',color:!form.retornaEstoque?'#991b1b':'#64748b',fontWeight:600,fontSize:13,cursor:'pointer',fontFamily:'inherit'}}>
+                🗑️ Não — será descartado
+              </button>
+            </div>
+            {!form.retornaEstoque && <div style={{marginTop:8,fontSize:12,color:'#ef4444',fontWeight:500}}>Este EPI será contabilizado como resíduo no painel ambiental.</div>}
+            {form.retornaEstoque && <div style={{marginTop:8,fontSize:12,color:'#10b981',fontWeight:500}}>Este EPI voltará ao estoque disponível.</div>}
+          </div>
           <div style={{display:'flex',gap:10,justifyContent:'flex-end',marginTop:8}}>
             <Btn variant="ghost" onClick={()=>setModal(false)}>Cancelar</Btn>
             <Btn variant="success" onClick={salvar} disabled={loading}>{loading?'Salvando...':'Confirmar Devolução'}</Btn>

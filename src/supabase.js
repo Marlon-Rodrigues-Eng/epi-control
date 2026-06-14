@@ -79,14 +79,16 @@ export async function getDevolucoes() {
   return data.map(d => ({
     id: d.id, funcId: d.func_id, funcNome: d.func_nome,
     epiId: d.epi_id, epiDesc: d.epi_desc,
-    data: d.data, quantidade: d.quantidade, motivo: d.motivo
+    data: d.data, quantidade: d.quantidade, motivo: d.motivo,
+    retornaEstoque: d.retorna_estoque
   }))
 }
 export async function insertDevolucao(d) {
   const { data, error } = await supabase.from('devolucoes').insert({
     func_id: d.funcId, func_nome: d.funcNome,
     epi_id: d.epiId, epi_desc: d.epiDesc,
-    data: d.data, quantidade: d.quantidade, motivo: d.motivo
+    data: d.data, quantidade: d.quantidade, motivo: d.motivo,
+    retorna_estoque: d.retornaEstoque || false
   }).select().single()
   if (error) throw error
   return { ...d, id: data.id }
