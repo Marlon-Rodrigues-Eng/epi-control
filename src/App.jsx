@@ -913,7 +913,7 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
         {[{l:'EPIs descartados',v:totalUn+' un.',i:'🗑️',c:'#f59e0b',s:'no período'},{l:'Peso total',v:totalKg+' kg',i:'⚖️',c:'#10b981',s:`${(Number(totalKg)*1000).toLocaleString('pt-BR')} g`},{l:'Tipos de EPI',v:porEpi.length,i:'🦺',c:'#6366f1',s:'com descarte'}].map(k=>(
           <div key={k.l} style={{background:'#ffffff',borderRadius:14,padding:'18px 20px',border:'1px solid #cbd5e1',borderTop:`3px solid ${k.c}`,boxShadow:'0 1px 3px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:24,marginBottom:6}}>{k.i}</div><div style={{color:k.c,fontSize:26,fontWeight:800}}>{k.v}</div>
-            <div style={{color:'#f1f5f9',fontSize:13,fontWeight:600,marginTop:2}}>{k.l}</div><div style={{color:'#64748b',fontSize:11,marginTop:2}}>{k.s}</div>
+            <div style={{color:'#1e293b',fontSize:13,fontWeight:600,marginTop:2}}>{k.l}</div><div style={{color:'#475569',fontSize:11,marginTop:2}}>{k.s}</div>
           </div>
         ))}
       </div>
