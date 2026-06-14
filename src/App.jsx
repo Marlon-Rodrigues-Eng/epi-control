@@ -88,7 +88,7 @@ function Toasts({ ts }) {
 const S = {
   card:  {background:'#ffffff',border:'1px solid #cbd5e1',borderRadius:12,padding:'14px 18px',display:'flex',alignItems:'center',gap:16,flexWrap:'wrap',boxShadow:'0 1px 3px rgba(0,0,0,.06)'},
   title: {color:'#1e293b',fontSize:20,fontWeight:700,margin:'0 0 4px 0',fontFamily:"'Sora',sans-serif"},
-  ax:    {fill:'#475569',fontSize:11},
+  ax:    {fill:'#94a3b8',fontSize:11},
   tt:    {background:'#1e293b',border:'1px solid #334155',borderRadius:8,color:'#f1f5f9',fontSize:13},
   clr:   ['#3b82f6','#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#f97316'],
   grn:   ['#10b981','#34d399','#6ee7b7','#059669','#047857','#065f46'],
@@ -405,18 +405,18 @@ function Dashboard({ funcionarios, epis, entregas, devolucoes }) {
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
         <ChartCard title="📈 Entregas por mês" span2>
           {entMes.length===0?<Empty msg="Sem dados no período."/>:
-          <ResponsiveContainer width="100%" height={220}><LineChart data={entMes} margin={{top:4,right:16,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0"/><XAxis dataKey="mes" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Line type="monotone" dataKey="total" name="Qtd entregue" stroke="#3b82f6" strokeWidth={2.5} dot={{fill:'#3b82f6',r:4}}/></LineChart></ResponsiveContainer>}
+          <ResponsiveContainer width="100%" height={220}><LineChart data={entMes} margin={{top:4,right:16,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155"/><XAxis dataKey="mes" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Line type="monotone" dataKey="total" name="Qtd entregue" stroke="#3b82f6" strokeWidth={2.5} dot={{fill:'#3b82f6',r:4}}/></LineChart></ResponsiveContainer>}
         </ChartCard>
         <ChartCard title="🦺 EPIs mais entregues">
           {episTop.length===0?<Empty msg="Sem dados."/>:
-          <ResponsiveContainer width="100%" height={220}><BarChart data={episTop} layout="vertical" margin={{top:0,right:16,left:8,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false}/><XAxis type="number" tick={S.ax} allowDecimals={false}/><YAxis dataKey="epi" type="category" tick={S.ax} width={90}/><Tooltip contentStyle={S.tt}/><Bar dataKey="total" name="Qtd" radius={[0,6,6,0]}>{episTop.map((_,i)=><Cell key={i} fill={S.clr[i%S.clr.length]}/>)}</Bar></BarChart></ResponsiveContainer>}
+          <ResponsiveContainer width="100%" height={220}><BarChart data={episTop} layout="vertical" margin={{top:0,right:16,left:8,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false}/><XAxis type="number" tick={S.ax} allowDecimals={false}/><YAxis dataKey="epi" type="category" tick={S.ax} width={90}/><Tooltip contentStyle={S.tt}/><Bar dataKey="total" name="Qtd" radius={[0,6,6,0]}>{episTop.map((_,i)=><Cell key={i} fill={S.clr[i%S.clr.length]}/>)}</Bar></BarChart></ResponsiveContainer>}
         </ChartCard>
         <ChartCard title="👷 Movimentações por funcionário">
           {movF.length===0?<Empty msg="Sem dados."/>:
-          <ResponsiveContainer width="100%" height={220}><BarChart data={movF} margin={{top:0,right:8,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0"/><XAxis dataKey="nome" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Legend wrapperStyle={{fontSize:11,color:'#94a3b8'}}/><Bar dataKey="ent" name="Entregas" fill="#3b82f6" radius={[4,4,0,0]}/><Bar dataKey="dev" name="Devoluções" fill="#10b981" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer>}
+          <ResponsiveContainer width="100%" height={220}><BarChart data={movF} margin={{top:0,right:8,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155"/><XAxis dataKey="nome" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Legend wrapperStyle={{fontSize:11,color:'#94a3b8'}}/><Bar dataKey="ent" name="Entregas" fill="#3b82f6" radius={[4,4,0,0]}/><Bar dataKey="dev" name="Devoluções" fill="#10b981" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer>}
         </ChartCard>
         <ChartCard title="📦 Estoque atual vs mínimo">
-          <ResponsiveContainer width="100%" height={220}><BarChart data={estoq} margin={{top:0,right:8,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0"/><XAxis dataKey="epi" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Legend wrapperStyle={{fontSize:11,color:'#94a3b8'}}/><Bar dataKey="atual" name="Em estoque" fill="#6366f1" radius={[4,4,0,0]}/><Bar dataKey="minimo" name="Mínimo" fill="#ef4444" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={220}><BarChart data={estoq} margin={{top:0,right:8,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155"/><XAxis dataKey="epi" tick={S.ax}/><YAxis tick={S.ax} allowDecimals={false}/><Tooltip contentStyle={S.tt}/><Legend wrapperStyle={{fontSize:11,color:'#94a3b8'}}/><Bar dataKey="atual" name="Em estoque" fill="#6366f1" radius={[4,4,0,0]}/><Bar dataKey="minimo" name="Mínimo" fill="#ef4444" radius={[4,4,0,0]}/></BarChart></ResponsiveContainer>
         </ChartCard>
         <ChartCard title="📥 Devoluções por motivo" span2>
           {devMot.length===0?<Empty msg="Sem devoluções no período."/>:
@@ -926,18 +926,18 @@ function PainelAmbiental({ entregas, devolucoes, epis }) {
       ):(
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16}}>
           <ChartCard title="⚖️ Peso por EPI (kg)" span2>
-            <ResponsiveContainer width="100%" height={220}><BarChart data={porEpi} layout="vertical" margin={{top:0,right:24,left:8,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false}/><XAxis type="number" tick={S.ax} unit=" kg"/><YAxis dataKey="epiS" type="category" tick={S.ax} width={100}/><Tooltip contentStyle={S.tt} formatter={v=>[v+' kg','Peso']}/><Bar dataKey="kg" name="Peso (kg)" radius={[0,6,6,0]}>{porEpi.map((_,i)=><Cell key={i} fill={G[i%G.length]}/>)}</Bar></BarChart></ResponsiveContainer>
+            <ResponsiveContainer width="100%" height={220}><BarChart data={porEpi} layout="vertical" margin={{top:0,right:24,left:8,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155" horizontal={false}/><XAxis type="number" tick={S.ax} unit=" kg"/><YAxis dataKey="epiS" type="category" tick={S.ax} width={100}/><Tooltip contentStyle={S.tt} formatter={v=>[v+' kg','Peso']}/><Bar dataKey="kg" name="Peso (kg)" radius={[0,6,6,0]}>{porEpi.map((_,i)=><Cell key={i} fill={G[i%G.length]}/>)}</Bar></BarChart></ResponsiveContainer>
           </ChartCard>
           <ChartCard title="📈 Evolução mensal (kg)">
-            {porMes.length===0?<Empty msg="Sem dados."/>:<ResponsiveContainer width="100%" height={220}><LineChart data={porMes} margin={{top:4,right:16,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0"/><XAxis dataKey="mes" tick={S.ax}/><YAxis tick={S.ax}/><Tooltip contentStyle={S.tt} formatter={v=>[v+' kg','Peso']}/><Line type="monotone" dataKey="kg" stroke="#10b981" strokeWidth={2.5} dot={{fill:'#10b981',r:4}}/></LineChart></ResponsiveContainer>}
+            {porMes.length===0?<Empty msg="Sem dados."/>:<ResponsiveContainer width="100%" height={220}><LineChart data={porMes} margin={{top:4,right:16,left:-10,bottom:0}}><CartesianGrid strokeDasharray="3 3" stroke="#334155"/><XAxis dataKey="mes" tick={S.ax}/><YAxis tick={S.ax}/><Tooltip contentStyle={S.tt} formatter={v=>[v+' kg','Peso']}/><Line type="monotone" dataKey="kg" stroke="#10b981" strokeWidth={2.5} dot={{fill:'#10b981',r:4}}/></LineChart></ResponsiveContainer>}
           </ChartCard>
           <ChartCard title="🗑️ Origem dos descartes">
             {porOrigem.length===0?<Empty msg="Sem dados."/>:<div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:28,flexWrap:'wrap'}}><PieChart width={200} height={200}><Pie data={porOrigem} dataKey="value" nameKey="origem" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3}>{porOrigem.map((_,i)=><Cell key={i} fill={G[i%G.length]}/>)}</Pie><Tooltip contentStyle={S.tt} formatter={(v,n)=>[v+' un.',n]}/></PieChart><div style={{display:'flex',flexDirection:'column',gap:10}}>{porOrigem.map((d,i)=>(<div key={d.origem} style={{display:'flex',alignItems:'center',gap:10}}><div style={{width:12,height:12,borderRadius:3,background:G[i%G.length]}}/><div><div style={{color:'#f1f5f9',fontSize:13,fontWeight:600}}>{d.origem}</div><div style={{color:'#64748b',fontSize:12}}>{d.value} un.</div></div></div>))}</div></div>}
           </ChartCard>
           <ChartCard title="📋 Detalhamento">
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
-              <thead><tr>{['EPI','Un.','Peso un.','Total'].map(h=><th key={h} style={{color:'#64748b',fontWeight:600,textAlign:'left',padding:'6px 10px',borderBottom:'1px solid #334155',fontSize:11,textTransform:'uppercase'}}>{h}</th>)}</tr></thead>
-              <tbody>{porEpi.map((r,i)=>(<tr key={r.epi} style={{borderBottom:'1px solid #0f172a'}}><td style={{color:'#1e293b',padding:'8px 10px',fontWeight:500}}>{r.epi}</td><td style={{color:'#475569',padding:'8px 10px'}}>{r.un} un.</td><td style={{color:'#64748b',padding:'8px 10px'}}>{epis.find(e=>e.descricao===r.epi)?.pesoG??0}g</td><td style={{padding:'8px 10px'}}><span style={{color:G[i%G.length],fontWeight:700}}>{r.kg} kg</span></td></tr>))}</tbody>
+              <thead><tr>{['EPI','Un.','Peso un.','Total'].map(h=><th key={h} style={{color:'#94a3b8',fontWeight:600,textAlign:'left',padding:'6px 10px',borderBottom:'1px solid #334155',fontSize:11,textTransform:'uppercase'}}>{h}</th>)}</tr></thead>
+              <tbody>{porEpi.map((r,i)=>(<tr key={r.epi} style={{borderBottom:'1px solid #0f172a'}}><td style={{color:'#f1f5f9',padding:'8px 10px',fontWeight:500}}>{r.epi}</td><td style={{color:'#cbd5e1',padding:'8px 10px'}}>{r.un} un.</td><td style={{color:'#94a3b8',padding:'8px 10px'}}>{epis.find(e=>e.descricao===r.epi)?.pesoG??0}g</td><td style={{padding:'8px 10px'}}><span style={{color:G[i%G.length],fontWeight:700}}>{r.kg} kg</span></td></tr>))}</tbody>
               <tfoot><tr style={{borderTop:'1px solid #334155'}}><td style={{color:'#64748b',padding:'8px 10px',fontWeight:700}} colSpan={2}>Total — {totalUn} un.</td><td/><td style={{color:'#10b981',padding:'8px 10px',fontWeight:800}}>{totalKg} kg</td></tr></tfoot>
             </table>
           </ChartCard>
