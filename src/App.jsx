@@ -41,7 +41,7 @@ function calcResiduos(entregas, devolucoes, epis) {
   const pm = {}; epis.forEach(e => pm[e.id] = e.pesoG||0)
   return [
     // Devolução é resíduo se retornaEstoque === false (campo novo) OU se motivo é de descarte (compatibilidade)
-    ...devolucoes.filter(d => d.retornaEstoque === false || (d.retornaEstoque === undefined && RESIDUO_DEV.has(d.motivo)))
+    ...devolucoes.filter(d => !d.retornaEstoque) // false, null ou undefined = descarta
       .map(d=>({...d,pesoG:pm[d.epiId]||0,origem:'Devolução'})),
     ...entregas.filter(e=>RESIDUO_ENT.has(e.motivo)).map(e=>({...e,pesoG:pm[e.epiId]||0,origem:'Perda'})),
   ]

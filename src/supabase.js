@@ -80,7 +80,7 @@ export async function getDevolucoes() {
     id: d.id, funcId: d.func_id, funcNome: d.func_nome,
     epiId: d.epi_id, epiDesc: d.epi_desc,
     data: d.data, quantidade: d.quantidade, motivo: d.motivo,
-    retornaEstoque: d.retorna_estoque
+    retornaEstoque: d.retorna_estoque === true ? true : false
   }))
 }
 export async function insertDevolucao(d) {
