@@ -903,9 +903,8 @@ function TotalizadorDescarte({ totalAcumKg, todosRes, descartes=[] }) {
     ? descartes.reduce((a,b)=>a.data>b.data?a:b)
     : null
 
-  const pendente = ultimoDescarte
-    ? parseFloat((todosRes.filter(r=>r.data>ultimoDescarte.data).reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000).toFixed(3))
-    : totalAcumKg
+  // Pendente = total gerado - total já descartado
+  const pendente = parseFloat(Math.max(0, totalAcumKg - totalDescartadoKg).toFixed(3))
 
   return (
     <>
@@ -1025,18 +1024,10 @@ function EstimativaCusto({ totalKg, todosRes, dIni, dFim, podeEditar, descartes=
   const [loading, setLoading] = useState(false)
   const MTR = 60
 
-  // Último descarte registrado (global)
-  const ultimoDescarte = useMemo(()=>{
-    return descartes.length>0 ? descartes.reduce((a,b)=>a.data>b.data?a:b) : null
-  },[descartes])
-
-  // Peso pendente = resíduos gerados APÓS o último descarte
-  const pesoParaCalcular = useMemo(()=>{
-    if(!ultimoDescarte) return totalKg
-    const pendente = (todosRes||[]).filter(r=>r.data>ultimoDescarte.data)
-      .reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000
-    return parseFloat(pendente.toFixed(3))
-  },[ultimoDescarte, todosRes, totalKg])
+  // Peso pendente = total acumulado - total já descartado
+  const totalAcumKgEst = parseFloat(((todosRes||[]).reduce((s,r)=>s+(r.pesoG*r.quantidade),0)/1000).toFixed(3))
+  const totalDescartadoEst = descartes.reduce((s,d)=>s+Number(d.pesoKg),0)
+  const pesoParaCalcular = parseFloat(Math.max(0, totalAcumKgEst - totalDescartadoEst).toFixed(3))
 
   const variavelKg = pesoParaCalcular * custoKg
   const total = custoColeta + variavelKg + MTR
